@@ -6,12 +6,12 @@
 #    By: caupetit <marvin@42.fr>                    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2015/01/05 15:46:59 by caupetit          #+#    #+#              #
-#    Updated: 2015/01/20 18:07:50 by caupetit         ###   ########.fr        #
+#    Updated: 2015/01/21 20:28:31 by caupetit         ###   ########.fr        #
 #                                                                              #
 #******************************************************************************#
 
 NAME = ponyTest
-SRC = main.cpp
+SRC = main.cpp Display.cpp
 CC = g++
 FLAGS = -Wall -Wextra -Werror
 LIBS = -lncurses

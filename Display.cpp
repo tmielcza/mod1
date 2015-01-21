@@ -6,7 +6,7 @@
 //   By: tmielcza <tmielcza@student.42.fr>          +#+  +:+       +#+        //
 //                                                +#+#+#+#+#+   +#+           //
 //   Created: 2015/01/21 12:44:56 by tmielcza          #+#    #+#             //
-//   Updated: 2015/01/21 15:04:44 by tmielcza         ###   ########.fr       //
+//   Updated: 2015/01/21 20:55:43 by caupetit         ###   ########.fr       //
 //                                                                            //
 // ************************************************************************** //
 
@@ -14,7 +14,7 @@
 #include <iostream>
 #include "Display.hpp"
 
-Display::Display(void)
+Display::Display(void) : _w(640), _h(480)
 {
 	try
 	{
@@ -26,8 +26,8 @@ Display::Display(void)
 		this->_win = SDL_CreateWindow("mod1",
 									  SDL_WINDOWPOS_UNDEFINED,
 									  SDL_WINDOWPOS_UNDEFINED,
-									  640,
-									  480,
+									  _w,
+									  _h,
 									  SDL_WINDOW_SHOWN);
 		if (this->_win == NULL)
 		{
@@ -43,10 +43,10 @@ Display::Display(void)
 		this->_tex = SDL_CreateTexture(this->_ren,
 									   SDL_PIXELFORMAT_ARGB8888,
 									   SDL_TEXTUREACCESS_STATIC,
-									   640,
-									   480);
+									   _w,
+									   _h);
 
-		this->_pix = new Uint32[640 * 480];
+		this->_pix = new Uint32[_w * _h];
 	}
 	catch (std::exception& e)
 	{
@@ -75,7 +75,7 @@ void		Display::addPixel(unsigned int x, unsigned int y, Uint32 col)
 
 void		Display::draw(void)
 {
-	SDL_UpdateTexture(this->_tex, NULL, this->_pix, 640 * sizeof(Uint32));
+	SDL_UpdateTexture(this->_tex, NULL, this->_pix, _w * sizeof(Uint32));
 	SDL_RenderClear(this->_ren);
 	SDL_RenderCopy(this->_ren, this->_tex, NULL, NULL);
 	SDL_RenderPresent(this->_ren);
