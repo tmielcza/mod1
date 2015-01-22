@@ -6,7 +6,7 @@
 //   By: tmielcza <tmielcza@student.42.fr>          +#+  +:+       +#+        //
 //                                                +#+#+#+#+#+   +#+           //
 //   Created: 2015/01/21 12:44:56 by tmielcza          #+#    #+#             //
-//   Updated: 2015/01/22 10:41:13 by tmielcza         ###   ########.fr       //
+//   Updated: 2015/01/22 12:23:41 by tmielcza         ###   ########.fr       //
 //                                                                            //
 // ************************************************************************** //
 
@@ -14,11 +14,8 @@
 #include <iostream>
 #include "Display.hpp"
 
-Display::Display(void)
+Display::Display(void) : _w(640), _h(480)
 {
-	static const unsigned int	wid = 640;
-	static const unsigned int	hgt = 480;
-
 	try
 	{
 		if (SDL_Init(SDL_INIT_VIDEO) < 0)
@@ -29,8 +26,8 @@ Display::Display(void)
 		this->_win = SDL_CreateWindow("mod1",
 									  SDL_WINDOWPOS_UNDEFINED,
 									  SDL_WINDOWPOS_UNDEFINED,
-									  wid,
-									  hgt,
+									  this->_w,
+									  this->_h,
 									  SDL_WINDOW_SHOWN);
 		if (this->_win == NULL)
 		{
@@ -46,12 +43,10 @@ Display::Display(void)
 		this->_tex = SDL_CreateTexture(this->_ren,
 									   SDL_PIXELFORMAT_ARGB8888,
 									   SDL_TEXTUREACCESS_STATIC,
-									   wid,
-									   hgt);
+									   this->_w,
+									   this->_h);
 
-		this->_pix = new Uint32[wid * hgt];
-		this->_w = wid;
-		this->_h = hgt;
+		this->_pix = new Uint32[this->_w * this->_h];
 	}
 	catch (std::exception& e)
 	{
@@ -80,7 +75,7 @@ void		Display::addPixel(unsigned int x, unsigned int y, Uint32 col)
 
 void		Display::draw(void)
 {
-	SDL_UpdateTexture(this->_tex, NULL, this->_pix, 640 * sizeof(Uint32));
+	SDL_UpdateTexture(this->_tex, NULL, this->_pix, this->_w * sizeof(Uint32));
 	SDL_RenderClear(this->_ren);
 	SDL_RenderCopy(this->_ren, this->_tex, NULL, NULL);
 	SDL_RenderPresent(this->_ren);

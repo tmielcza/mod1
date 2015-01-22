@@ -6,7 +6,7 @@
 //   By: tmielcza <tmielcza@student.42.fr>          +#+  +:+       +#+        //
 //                                                +#+#+#+#+#+   +#+           //
 //   Created: 2015/01/20 16:07:50 by tmielcza          #+#    #+#             //
-//   Updated: 2015/01/22 12:08:10 by tmielcza         ###   ########.fr       //
+//   Updated: 2015/01/22 12:22:59 by tmielcza         ###   ########.fr       //
 //                                                                            //
 // ************************************************************************** //
 
@@ -78,10 +78,7 @@ void		interPoint(Display& d, const float x, const float y)
 	}
 	pz = sumVal/sum;
 
-	std::cout << pz << std::endl;
-
 	d.addPixel(px * 2 + 100, py * 2 - pz + 100, 0xffffffff);
-
 }
 
 void		getFile(std::string name)
@@ -142,8 +139,6 @@ int main(void)
 
 	displayMap(*dis);
 	dis->draw();
-
-	std::cout << "Pouet" << std::endl;
 
 	SDL_Delay(5000);
 
