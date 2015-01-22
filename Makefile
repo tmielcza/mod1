@@ -6,17 +6,19 @@
 #    By: caupetit <marvin@42.fr>                    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2015/01/05 15:46:59 by caupetit          #+#    #+#              #
-#    Updated: 2015/01/22 12:23:17 by tmielcza         ###   ########.fr        #
+#    Updated: 2015/01/22 19:23:22 by tmielcza         ###   ########.fr        #
 #                                                                              #
 #******************************************************************************#
 
 NAME = mod1
-SRC = main.cpp Display.cpp
+SRC =	Display.cpp \
+		Map.cpp \
+		main.cpp
 CC = g++
 FLAGS = -Wall -Wextra -Werror
 LIBS = -lncurses
 SDL2 = -F ~/Library/Frameworks -framework SDL2 \
-		-I ~/Library/Frameworks/SDL2.framework/Headers
+		-I ~/Library/Frameworks/SDL2.framework/Headers -g
 
 OBJ = $(SRC:%.cpp=%.o)
 

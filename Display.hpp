@@ -6,12 +6,14 @@
 //   By: tmielcza <tmielcza@student.42.fr>          +#+  +:+       +#+        //
 //                                                +#+#+#+#+#+   +#+           //
 //   Created: 2015/01/21 12:37:22 by tmielcza          #+#    #+#             //
-//   Updated: 2015/01/21 18:38:17 by tmielcza         ###   ########.fr       //
+//   Updated: 2015/01/22 19:15:29 by tmielcza         ###   ########.fr       //
 //                                                                            //
 // ************************************************************************** //
 
 #ifndef DISPLAY_HPP
 # define DISPLAY_HPP
+
+# include <SDL.h>
 
 class Display
 {
