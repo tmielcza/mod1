@@ -6,7 +6,7 @@
 //   By: tmielcza <tmielcza@student.42.fr>          +#+  +:+       +#+        //
 //                                                +#+#+#+#+#+   +#+           //
 //   Created: 2015/01/20 16:07:50 by tmielcza          #+#    #+#             //
-//   Updated: 2015/01/22 12:22:59 by tmielcza         ###   ########.fr       //
+//   Updated: 2015/01/22 14:48:35 by tmielcza         ###   ########.fr       //
 //                                                                            //
 // ************************************************************************** //
 
@@ -16,6 +16,7 @@
 #include <sstream>
 #include <list>
 #include <cmath>
+#include <algorithm>
 #include "Display.hpp"
 
 struct point
@@ -57,6 +58,13 @@ point*		getNeighbours(float x, float y)
 	return (nei);
 }
 
+float		Weight(float d)
+{
+	if (d == 0)
+		return (1);
+	return (1.f / (d * d));
+}
+
 void		interPoint(Display& d, const float x, const float y)
 {
 	float	px = x;
@@ -64,7 +72,7 @@ void		interPoint(Display& d, const float x, const float y)
 	float	pz = 0;
 
 //	float	a = 0.3f;
-
+//
 	float sumVal = 0;
 	float sum = 0;
 	float distance, weight, value;
@@ -75,7 +83,13 @@ void		interPoint(Display& d, const float x, const float y)
 		value = weight * ite->z;
 		sumVal += value;
 		sum += weight;
+		if (ite->z == 0)
+			std::cout << value << " " << weight << std::endl;
 	}
+
+	sum += Weight(std::min(x, 100 - x));
+	sum += Weight(std::min(y, 100 - y));
+
 	pz = sumVal/sum;
 
 	d.addPixel(px * 2 + 100, py * 2 - pz + 100, 0xffffffff);
@@ -107,18 +121,23 @@ void		getFile(std::string name)
 
 void	displayMap(Display& d)
 {
-	for (int j = 0; j < 100; j += 2)
+	for (float j = 0; j < 100.f; j += 2.f)
 	{
-		for (int i = 0; i < 100; i += 2)
+		for (float i = 0; i < 100.f; i += 2.f)
 		{
 			interPoint(d, i, j);
 		}
 	}
 }
 
-int main(void)
+int main(int ac, char **av)
 {
 	Display*	dis;
+
+	if (ac != 2)
+	{
+		return (1);
+	}
 
 	try
 	{
@@ -128,14 +147,14 @@ int main(void)
 	{
 		return (0);
 	}
-	(void)dis;
+//	(void)dis;
 
 	_list.push_back(point(0.f, 0.f, 0.f));
 	_list.push_back(point(0.f, 100.f, 0.f));
 	_list.push_back(point(100.f, 100.f, 0.f));
 	_list.push_back(point(100.f, 0.f, 0.f));
 
-	getFile("test.mod1");
+	getFile(av[1]);
 
 	displayMap(*dis);
 	dis->draw();
