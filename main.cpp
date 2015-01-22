@@ -6,7 +6,7 @@
 //   By: tmielcza <tmielcza@student.42.fr>          +#+  +:+       +#+        //
 //                                                +#+#+#+#+#+   +#+           //
 //   Created: 2015/01/20 16:07:50 by tmielcza          #+#    #+#             //
-//   Updated: 2015/01/22 19:27:58 by tmielcza         ###   ########.fr       //
+//   Updated: 2015/01/22 19:48:30 by tmielcza         ###   ########.fr       //
 //                                                                            //
 // ************************************************************************** //
 
@@ -60,7 +60,7 @@ std::list<Map::point>*	getFile(std::string name)
 		ss >> a >> x >> b >> y >> c >> z >> d;
 		pts->push_back(Map::point(x, y, z));
 
-		std::cout << x << "-" << y << "-" << z << std::endl;
+		std::cout << "pt " << x << "-" << y << "-" << z << std::endl;
 
 		str.clear();
 		fs >> str;
@@ -92,10 +92,12 @@ int		main(int ac, char **av)
 
 	Map	map;
 
+	Map::displayer = dis;
+
 	map.setPoints(pts);
+
 	map.voxelizeMap();
 
-	Map::displayer = dis;
 
 //	displayMap(*dis);
 //	dis->draw();

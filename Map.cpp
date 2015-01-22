@@ -6,7 +6,7 @@
 //   By: tmielcza <tmielcza@student.42.fr>          +#+  +:+       +#+        //
 //                                                +#+#+#+#+#+   +#+           //
 //   Created: 2015/01/22 15:20:14 by tmielcza          #+#    #+#             //
-//   Updated: 2015/01/22 19:21:16 by tmielcza         ###   ########.fr       //
+//   Updated: 2015/01/22 22:53:01 by tmielcza         ###   ########.fr       //
 //                                                                            //
 // ************************************************************************** //
 
@@ -33,8 +33,8 @@ void	Map::setPoints(std::list<point>* pts)
 	unsigned int	maxz = 0;
 	unsigned int	maxy = 0;
 	unsigned int	maxx = 0;
-	unsigned int	miny = 0;
-	unsigned int	minx = 0;
+	int				miny = 0;
+	int				minx = 0;
 
 	unsigned int	maxsize, sizex, sizey;
 
@@ -45,15 +45,16 @@ void	Map::setPoints(std::list<point>* pts)
 		if (it->z > maxz)
 			maxz = it->z;
 		if (it->y > maxy)
-			maxy = it->y;
-		else if (miny == 0 || it->y > miny)
-			miny = it->y;
+			maxy = it->y + it->z;
+		if (miny == 0 || it->y < miny)
+			miny = it->y - it->z;
 		if (it->x > maxx)
-			maxx = it->x;
-		else if (minx == 0 || it->x > minx)
-			minx = it->x;
+			maxx = it->x + it->z;
+		if (minx == 0 || it->x < minx)
+			minx = it->x - it->z;
 	}
-	maxz = maxz / 2;
+	maxz = maxz * 2;
+
 	sizex = maxx - minx;
 	sizey = maxy - miny;
 
@@ -62,9 +63,12 @@ void	Map::setPoints(std::list<point>* pts)
 
 	hRatio = static_cast<float>(maxsize) / CUBE_SIZE;
 
-	this->_ratio = hRatio;
-	this->_offsetx = minx;
-	this->_offsety = miny;
+	for (std::list<point>::iterator it = pts->begin(), end = pts->end(); it != end; ++it)
+	{
+		it->x = (it->x - minx) / hRatio;
+		it->y = (it->y - miny) / hRatio;
+		it->z = it->z / hRatio;
+	}
 }
 
 Map::point::point(void)
@@ -111,18 +115,17 @@ float	Map::Weight(float d)
 
 void	Map::voxelizeMap(void)
 {
-	point inter;
+	point pt;
 
 	for (int j = 0; j < CUBE_SIZE; j++)
 	{
 		for (int i = 0; i < CUBE_SIZE; i++)
 		{
-			inter = interPoint(i * this->_ratio,
-							   j * this->_ratio);
-			
-			displayer->addPixel(30 + i * 2, 30 + j * 2 + inter.z / this->_ratio, 0xffffffff);
+			pt = interPoint(i, j);
+			displayer->addPixel(50 + i * 3, 50 + j * 3 - pt.z, 0xffffffff);
 		 }
 	 }
+
 	displayer->draw();
  }
 
@@ -145,12 +148,10 @@ Display* Map::displayer; // A VIRER
 		value = weight * ite->z;
 		sumVal += value;
 		sum += weight;
-		if (ite->z == 0)
-			std::cout << value << " " << weight << std::endl;
 	}
 
-	sum += Weight(std::min(x, 100 - x));
-	sum += Weight(std::min(y, 100 - y));
+	sum += Weight(std::min(x, CUBE_SIZE - x));
+	sum += Weight(std::min(y, CUBE_SIZE - y));
 
 	pz = sumVal/sum;
 

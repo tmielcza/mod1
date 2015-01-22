@@ -6,14 +6,14 @@
 //   By: tmielcza <tmielcza@student.42.fr>          +#+  +:+       +#+        //
 //                                                +#+#+#+#+#+   +#+           //
 //   Created: 2015/01/22 15:07:14 by tmielcza          #+#    #+#             //
-//   Updated: 2015/01/22 19:21:25 by tmielcza         ###   ########.fr       //
+//   Updated: 2015/01/22 21:44:53 by tmielcza         ###   ########.fr       //
 //                                                                            //
 // ************************************************************************** //
 
 #ifndef MAP_HPP
 # define MAP_HPP
 
-# define CUBE_SIZE 255
+# define CUBE_SIZE 128
 
 # include <list>
 
@@ -53,10 +53,12 @@ public:
 
 private:
 	std::list<point>*			_pts;
-	voxel						_vox[CUBE_SIZE][CUBE_SIZE][CUBE_SIZE];
+//	voxel						_vox[CUBE_SIZE][CUBE_SIZE / 2][CUBE_SIZE];
+/*
 	float						_ratio;
 	unsigned int				_offsetx;
 	unsigned int				_offsety;
+*/
 
 	Map(const Map& src);
 
