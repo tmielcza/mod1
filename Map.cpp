@@ -6,7 +6,7 @@
 //   By: tmielcza <tmielcza@student.42.fr>          +#+  +:+       +#+        //
 //                                                +#+#+#+#+#+   +#+           //
 //   Created: 2015/01/22 15:20:14 by tmielcza          #+#    #+#             //
-//   Updated: 2015/01/22 22:53:01 by tmielcza         ###   ########.fr       //
+//   Updated: 2015/01/23 12:24:50 by tmielcza         ###   ########.fr       //
 //                                                                            //
 // ************************************************************************** //
 
@@ -71,6 +71,14 @@ void	Map::setPoints(std::list<point>* pts)
 	}
 }
 
+Map::voxel::voxel(void) : type(VOID)
+{
+}
+
+Map::voxel::voxel(Voxel_Type type) : type(type)
+{
+}
+
 Map::point::point(void)
 {
 }
@@ -117,17 +125,20 @@ void	Map::voxelizeMap(void)
 {
 	point pt;
 
-	for (int j = 0; j < CUBE_SIZE; j++)
+	for (int y = 0; y < CUBE_SIZE; y++)
 	{
-		for (int i = 0; i < CUBE_SIZE; i++)
+		for (int x = 0; x < CUBE_SIZE; x++)
 		{
-			pt = interPoint(i, j);
-			displayer->addPixel(50 + i * 3, 50 + j * 3 - pt.z, 0xffffffff);
+			pt = interPoint(x, y);
+			for (int l = 0; l < pt.z; l++)
+			{
+				this->_vox[l][y][x] = voxel(voxel::SOIL);
+			}
+			displayer->addPixel(50 + x * 3, 50 + y * 3 - pt.z, 0xffffffff);
 		 }
 	 }
-
 	displayer->draw();
- }
+}
 
 Display* Map::displayer; // A VIRER
 

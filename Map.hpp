@@ -6,7 +6,7 @@
 //   By: tmielcza <tmielcza@student.42.fr>          +#+  +:+       +#+        //
 //                                                +#+#+#+#+#+   +#+           //
 //   Created: 2015/01/22 15:07:14 by tmielcza          #+#    #+#             //
-//   Updated: 2015/01/22 21:44:53 by tmielcza         ###   ########.fr       //
+//   Updated: 2015/01/23 12:33:47 by tmielcza         ###   ########.fr       //
 //                                                                            //
 // ************************************************************************** //
 
@@ -38,7 +38,12 @@ public:
 
 	struct voxel
 	{
-		unsigned int	col;
+		enum Voxel_Type {VOID, SOIL, WATER};
+		voxel(Voxel_Type);
+		voxel(void);
+
+		char			type;
+		char			q;
 	};
 
 	Map(void);
@@ -53,7 +58,7 @@ public:
 
 private:
 	std::list<point>*			_pts;
-//	voxel						_vox[CUBE_SIZE][CUBE_SIZE / 2][CUBE_SIZE];
+	voxel						_vox[CUBE_SIZE][CUBE_SIZE / 2][CUBE_SIZE];
 /*
 	float						_ratio;
 	unsigned int				_offsetx;
