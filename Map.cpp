@@ -6,7 +6,7 @@
 //   By: tmielcza <tmielcza@student.42.fr>          +#+  +:+       +#+        //
 //                                                +#+#+#+#+#+   +#+           //
 //   Created: 2015/01/22 15:20:14 by tmielcza          #+#    #+#             //
-//   Updated: 2015/01/23 12:24:50 by tmielcza         ###   ########.fr       //
+//   Updated: 2015/01/23 14:52:06 by tmielcza         ###   ########.fr       //
 //                                                                            //
 // ************************************************************************** //
 
@@ -15,7 +15,7 @@
 #include <iostream>
 #include "Map.hpp"
 
-Map::Map(void)
+Map::Map(void) : _vox(CUBE_SIZE / 2, std::vector< std::vector <voxel> >(CUBE_SIZE, std::vector<voxel>(CUBE_SIZE)))
 {
 	this->_pts = NULL;
 }

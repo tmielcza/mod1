@@ -6,7 +6,7 @@
 //   By: tmielcza <tmielcza@student.42.fr>          +#+  +:+       +#+        //
 //                                                +#+#+#+#+#+   +#+           //
 //   Created: 2015/01/22 15:07:14 by tmielcza          #+#    #+#             //
-//   Updated: 2015/01/23 12:33:47 by tmielcza         ###   ########.fr       //
+//   Updated: 2015/01/23 14:51:27 by tmielcza         ###   ########.fr       //
 //                                                                            //
 // ************************************************************************** //
 
@@ -16,6 +16,7 @@
 # define CUBE_SIZE 128
 
 # include <list>
+# include <vector>
 
 # include "Display.hpp" // A VIRER
 
@@ -52,18 +53,15 @@ public:
 	void	setPoints(std::list<point>* pts);
 	void	voxelizeMap(void);
 
+	bool	woxelSurroundings(const unsigned int x, const unsigned int y, const unsigned int z);
+
 	const std::list<point>&	Points(void);
 
 	static Display* displayer; // A VIRER
 
 private:
 	std::list<point>*			_pts;
-	voxel						_vox[CUBE_SIZE][CUBE_SIZE / 2][CUBE_SIZE];
-/*
-	float						_ratio;
-	unsigned int				_offsetx;
-	unsigned int				_offsety;
-*/
+	std::vector< std::vector< std::vector <voxel> > >	_vox;
 
 	Map(const Map& src);
 
