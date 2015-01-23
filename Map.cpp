@@ -6,7 +6,7 @@
 //   By: tmielcza <tmielcza@student.42.fr>          +#+  +:+       +#+        //
 //                                                +#+#+#+#+#+   +#+           //
 //   Created: 2015/01/22 15:20:14 by tmielcza          #+#    #+#             //
-//   Updated: 2015/01/23 14:52:06 by tmielcza         ###   ########.fr       //
+//   Updated: 2015/01/23 18:50:32 by caupetit         ###   ########.fr       //
 //                                                                            //
 // ************************************************************************** //
 
@@ -96,6 +96,15 @@ Map::point::~point(void)
 {
 }
 
+void		Map::point::normalize(void)
+{
+	float	dist = std::sqrt(this->x * this->x + this->y * this->y + this->z * this->z);
+
+	this->x = this->x / dist;
+	this->y = this->y / dist;
+	this->z = this->z / dist;
+}
+
 Map::point&	Map::point::operator=(const point& rhs)
 {
 	this->x = rhs.x;
@@ -105,6 +114,53 @@ Map::point&	Map::point::operator=(const point& rhs)
 	return (*this);
 }
 
+Map::point&	Map::point::operator*(const point& rhs)
+{
+	this->x *= rhs.x;
+	this->y *= rhs.y;
+	this->z *= rhs.z;
+	return (*this);
+}
+
+Map::point&	Map::point::operator*(const float& rhs)
+{
+	this->x *= rhs;
+	this->y *= rhs;
+	this->z *= rhs;
+	return (*this);
+}
+
+Map::point&	Map::point::operator/(const point& rhs)
+{
+	this->x /= rhs.x;
+	this->y /= rhs.y;
+	this->z /= rhs.z;
+	return (*this);
+}
+
+Map::point&	Map::point::operator/(const float& rhs)
+{
+	this->x /= rhs;
+	this->y /= rhs;
+	this->z /= rhs;
+	return (*this);
+}
+
+Map::point&	Map::point::operator+(const Map::point& rhs)
+{
+	this->x += rhs.x;
+	this->y += rhs.y;
+	this->z += rhs.z;
+	return *this;
+}
+Map::point&	Map::point::operator-(const Map::point& rhs)
+{
+	this->x -= rhs.x;
+	this->y -= rhs.y;
+	this->z -= rhs.z;
+	return *this;
+}
+
 float	Map::point::getDst(const point& a, const point& b)
 {
 	float xi, yi;
@@ -112,6 +168,14 @@ float	Map::point::getDst(const point& a, const point& b)
 	xi = a.x - b.x;
 	yi = a.y - b.y;
 	return (std::sqrt(xi * xi + yi * yi));
+}
+
+Map::point	Map::point::cross(const point& a, const point& b)
+{
+	Map::point p(a.x * b.z - a.z * b.y,
+				 a.z * b.x - a.x * b.z,
+				 a.x * b.y - a.y * b.x);
+	return p;
 }
 
 float	Map::Weight(float d)
@@ -138,6 +202,11 @@ void	Map::voxelizeMap(void)
 		 }
 	 }
 	displayer->draw();
+}
+
+const std::vector< std::vector< std::vector <Map::voxel> > >& Map::voxels(void) const
+{
+	return this->_vox;
 }
 
 Display* Map::displayer; // A VIRER

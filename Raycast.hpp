@@ -1,0 +1,62 @@
+// ************************************************************************** //
+//                                                                            //
+//                                                        :::      ::::::::   //
+//   Raycast.hpp                                        :+:      :+:    :+:   //
+//                                                    +:+ +:+         +:+     //
+//   By: caupetit <marvin@42.fr>                    +#+  +:+       +#+        //
+//                                                +#+#+#+#+#+   +#+           //
+//   Created: 2015/01/23 14:59:35 by caupetit          #+#    #+#             //
+//   Updated: 2015/01/23 20:52:30 by caupetit         ###   ########.fr       //
+//                                                                            //
+// ************************************************************************** //
+
+#ifndef RAYCAST_HPP
+# define RAYCAST_HPP
+
+# include <cmath>
+# include "Map.hpp"
+# include "Display.hpp"
+
+class		Raycast
+{
+public:
+
+	struct	Ray
+	{
+		Ray(Map::point origin, Map::point direction);
+		~Ray(void);
+
+		Map::point	origin;
+		Map::point	dir;
+
+	private:
+		Ray(void);
+	};
+
+	/* Constructors / Destructors */
+	Raycast (const Map::point& p,const int& w,const int& h);
+	~Raycast (void);
+
+	/* Members Functions */
+
+	bool	raycast(Map::voxel& vox,
+					const std::vector<std::vector<std::vector<Map::voxel> > >& map,
+					Ray ray);
+	void	raycastMapVoxels(const Map& map, Display const & display);
+
+private:
+	Map::point	_camPos;
+	Map::point	_camDir;
+	Map::point	_dir;
+	int			_w;
+	int			_h;
+	Map::point	_upLeft;
+	Map::point	_upDir;
+	Map::point	_rightDir;
+
+	Raycast (void);
+	Raycast(Raycast const & rhs);
+	Raycast &	operator=(Raycast const & rhs);
+};
+
+#endif

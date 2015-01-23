@@ -6,13 +6,14 @@
 #    By: caupetit <marvin@42.fr>                    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2015/01/05 15:46:59 by caupetit          #+#    #+#              #
-#    Updated: 2015/01/22 19:23:22 by tmielcza         ###   ########.fr        #
+#    Updated: 2015/01/23 15:09:47 by caupetit         ###   ########.fr        #
 #                                                                              #
 #******************************************************************************#
 
 NAME = mod1
 SRC =	Display.cpp \
 		Map.cpp \
+		Raycast.cpp \
 		main.cpp
 CC = g++
 FLAGS = -Wall -Wextra -Werror
