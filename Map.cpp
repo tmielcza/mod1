@@ -6,7 +6,7 @@
 //   By: tmielcza <tmielcza@student.42.fr>          +#+  +:+       +#+        //
 //                                                +#+#+#+#+#+   +#+           //
 //   Created: 2015/01/24 15:59:11 by tmielcza          #+#    #+#             //
-//   Updated: 2015/01/24 15:59:35 by tmielcza         ###   ########.fr       //
+//   Updated: 2015/01/24 16:13:47 by tmielcza         ###   ########.fr       //
 //                                                                            //
 // ************************************************************************** //
 
@@ -71,7 +71,7 @@ void	Map::setPoints(std::list<point>* pts)
 	}
 }
 
-Map::voxel::voxel(void) : type(WATER), q(0)
+Map::voxel::voxel(void) : type(VOID), q(0)
 {
 }
 
