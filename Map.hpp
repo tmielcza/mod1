@@ -6,7 +6,7 @@
 //   By: tmielcza <tmielcza@student.42.fr>          +#+  +:+       +#+        //
 //                                                +#+#+#+#+#+   +#+           //
 //   Created: 2015/01/22 15:07:14 by tmielcza          #+#    #+#             //
-//   Updated: 2015/01/24 16:00:56 by tmielcza         ###   ########.fr       //
+//   Updated: 2015/01/24 19:42:15 by caupetit         ###   ########.fr       //
 //                                                                            //
 // ************************************************************************** //
 
@@ -18,8 +18,6 @@
 # include <list>
 # include <vector>
 # include <cmath>
-
-# include "Display.hpp" // A VIRER
 
 class Map
 {
@@ -33,14 +31,14 @@ public:
 
 		void	normalize(void);
 		point&	operator=(const point& rhs);
-		point&	operator*(const point& rhs);
-		point&	operator*(const float& rhs);
-		point&	operator/(const point& rhs);
-		point&	operator/(const float& rhs);
-		point&	operator+(const point& rhs);
-		point&	operator+(const float& rhs);
-		point&	operator-(const point& rhs);
-		point&	operator-(const float& rhs);
+		point	operator*(const point& rhs);
+		point	operator*(const float& rhs);
+		point	operator/(const point& rhs);
+		point	operator/(const float& rhs);
+		point	operator+(const point& rhs);
+		point	operator+(const float& rhs);
+		point	operator-(const point& rhs);
+		point	operator-(const float& rhs);
 
 		float x, y, z, dst;
 
@@ -73,7 +71,7 @@ public:
 
 	const std::list<point>&	Points(void);
 
-	static Display* displayer; // A VIRER
+	void	PutWater(int x, int y, int z) {_vox[z][y][x] = voxel(voxel::WATER, 255);} // A VIRER
 
 private:
 	struct surroundings

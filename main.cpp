@@ -6,7 +6,7 @@
 //   By: tmielcza <tmielcza@student.42.fr>          +#+  +:+       +#+        //
 //                                                +#+#+#+#+#+   +#+           //
 //   Created: 2015/01/20 16:07:50 by tmielcza          #+#    #+#             //
-//   Updated: 2015/01/24 14:37:39 by caupetit         ###   ########.fr       //
+//   Updated: 2015/01/24 19:46:49 by caupetit         ###   ########.fr       //
 //                                                                            //
 // ************************************************************************** //
 
@@ -93,19 +93,22 @@ int		main(int ac, char **av)
 
 	Map	map;
 
-	Map::displayer = dis;
-
 	map.setPoints(pts);
-
 	map.voxelizeMap();
 
-	Raycast		raycast(Map::point(-100, -100, 0), 640, 480);
+	Raycast		raycast(Map::point(100, 0, 50), 640, 480);
+
+	for (int i = 0; i < 100; i++)
+		map.PutWater(i, 1, 10);
+
+	for (int i = 0; i < 30; i++)
+		map.drainWoxels();
 
 	raycast.raycastMapVoxels(map, *dis);
 //	displayMap(*dis);
-//	dis->draw();
+	dis->draw();
 
-	SDL_Delay(5000);
+	SDL_Delay(14000);
 
 	return (0);
 }

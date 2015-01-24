@@ -6,7 +6,7 @@
 //   By: tmielcza <tmielcza@student.42.fr>          +#+  +:+       +#+        //
 //                                                +#+#+#+#+#+   +#+           //
 //   Created: 2015/01/24 15:59:11 by tmielcza          #+#    #+#             //
-//   Updated: 2015/01/24 15:59:35 by tmielcza         ###   ########.fr       //
+//   Updated: 2015/01/24 19:47:07 by caupetit         ###   ########.fr       //
 //                                                                            //
 // ************************************************************************** //
 
@@ -71,7 +71,7 @@ void	Map::setPoints(std::list<point>* pts)
 	}
 }
 
-Map::voxel::voxel(void) : type(WATER), q(0)
+Map::voxel::voxel(void) : type(VOID), q(0)
 {
 }
 
@@ -114,68 +114,44 @@ Map::point&	Map::point::operator=(const point& rhs)
 	return (*this);
 }
 
-Map::point&	Map::point::operator*(const point& rhs)
+Map::point	Map::point::operator*(const point& rhs)
 {
-	this->x *= rhs.x;
-	this->y *= rhs.y;
-	this->z *= rhs.z;
-	return (*this);
+	return Map::point(this->x * rhs.x, this->y * rhs.y, this->z * rhs.z);
 }
 
-Map::point&	Map::point::operator*(const float& rhs)
+Map::point	Map::point::operator*(const float& rhs)
 {
-	this->x *= rhs;
-	this->y *= rhs;
-	this->z *= rhs;
-	return (*this);
+	return Map::point(this->x * rhs, this->y * rhs, this->z * rhs);
 }
 
-Map::point&	Map::point::operator/(const point& rhs)
+Map::point	Map::point::operator/(const point& rhs)
 {
-	this->x /= rhs.x;
-	this->y /= rhs.y;
-	this->z /= rhs.z;
-	return (*this);
+	return Map::point(this->x / rhs.x, this->y / rhs.y, this->z / rhs.z);
 }
 
-Map::point&	Map::point::operator/(const float& rhs)
+Map::point	Map::point::operator/(const float& rhs)
 {
-	this->x /= rhs;
-	this->y /= rhs;
-	this->z /= rhs;
-	return (*this);
+	return Map::point(this->x / rhs, this->y / rhs, this->z / rhs);
 }
 
-Map::point&	Map::point::operator+(const Map::point& rhs)
+Map::point	Map::point::operator+(const Map::point& rhs)
 {
-	this->x += rhs.x;
-	this->y += rhs.y;
-	this->z += rhs.z;
-	return *this;
+	return Map::point(this->x + rhs.x, this->y + rhs.y, this->z + rhs.z);
 }
 
-Map::point&	Map::point::operator+(const float& rhs)
+Map::point	Map::point::operator+(const float& rhs)
 {
-	this->x += rhs;
-	this->y += rhs;
-	this->z += rhs;
-	return *this;
+	return Map::point(this->x + rhs, this->y + rhs, this->z + rhs);
 }
 
-Map::point&	Map::point::operator-(const Map::point& rhs)
+Map::point	Map::point::operator-(const Map::point& rhs)
 {
-	this->x -= rhs.x;
-	this->y -= rhs.y;
-	this->z -= rhs.z;
-	return *this;
+	return Map::point(this->x - rhs.x, this->y - rhs.y, this->z - rhs.z);
 }
 
-Map::point&	Map::point::operator-(const float& rhs)
+Map::point	Map::point::operator-(const float& rhs)
 {
-	this->x -= rhs;
-	this->y -= rhs;
-	this->z -= rhs;
-	return *this;
+	return Map::point(this->x - rhs, this->y - rhs, this->z - rhs);
 }
 
 std::ostream&	operator<<(std::ostream& o, const Map::point& rhs)
@@ -282,13 +258,10 @@ void	Map::voxelizeMap(void)
 			pt = interPoint(x, y);
 			for (int l = 0; l < pt.z; l++)
 			{
-				this->_vox[l][y][x] = voxel(voxel::SOIL, 0);
-				woxelSurroundings(x, y, l);
+				this->_vox[l][y][x] = voxel(voxel::SOIL, l);
 			}
-			displayer->addPixel(50 + x * 3, 50 + y * 3 - pt.z, 0xffffffff);
 		 }
 	 }
-	displayer->draw();
 }
 
 const std::vector< std::vector< std::vector <Map::voxel> > >& Map::voxels(void) const
@@ -296,20 +269,18 @@ const std::vector< std::vector< std::vector <Map::voxel> > >& Map::voxels(void) 
 	return this->_vox;
 }
 
-Display* Map::displayer; // A VIRER
+Map::point	Map::interPoint(const float x, const float y) const
+{
+	float	px = x;
+	float	py = y;
+	float	pz = 0;
+	
+	float sumVal = 0;
+	float sum = 0;
+	float distance, weight, value;
 
- Map::point	Map::interPoint(const float x, const float y) const
- {
-	 float	px = x;
-	 float	py = y;
-	 float	pz = 0;
-
-	 float sumVal = 0;
-	 float sum = 0;
-	 float distance, weight, value;
-
-	 for (std::list<point>::const_iterator ite = this->_pts->begin(), end = this->_pts->end(); ite != end; ++ite)
-	 {
+	for (std::list<point>::const_iterator ite = this->_pts->begin(), end = this->_pts->end(); ite != end; ++ite)
+	{
 		distance = point::getDst(point(x, y, 0), *ite);
 		weight = distance != 0 ? 1/ (distance * distance) : 1;
 		value = weight * ite->z;
@@ -330,6 +301,8 @@ void				Map::exchangeWater(voxel& src, voxel& dst, const int q)
 	src.q -= q;
 	dst.q += q;
 	dst.type = voxel::WATER;
+	if (src.q == 0)
+		src.type = voxel::VOID;
 }
 
 void				Map::drainWoxels(void)
@@ -355,8 +328,10 @@ void				Map::drainWoxel(const unsigned int x, const unsigned int y, const unsign
 	int		count = 0;
 	int		water = 0;
 
+	std::cout << x << " " << y << " " << z << std::endl;
 	if (!surr.Position(x, y, z - 1) && this->_vox[z - 1][y][x].q != 255)
 	{
+		std::cout << "Suce mon zoze." << std::endl;
 		exchangeWater(vox, this->_vox[z - 1][y][x], vox.q - this->_vox[z - 1][y][x].q);
 		return ;
 	}
