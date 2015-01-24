@@ -6,7 +6,7 @@
 //   By: tmielcza <tmielcza@student.42.fr>          +#+  +:+       +#+        //
 //                                                +#+#+#+#+#+   +#+           //
 //   Created: 2015/01/22 15:20:14 by tmielcza          #+#    #+#             //
-//   Updated: 2015/01/23 14:52:06 by tmielcza         ###   ########.fr       //
+//   Updated: 2015/01/24 15:14:08 by tmielcza         ###   ########.fr       //
 //                                                                            //
 // ************************************************************************** //
 
@@ -71,11 +71,11 @@ void	Map::setPoints(std::list<point>* pts)
 	}
 }
 
-Map::voxel::voxel(void) : type(VOID)
+Map::voxel::voxel(void) : type(WATER), q(0)
 {
 }
 
-Map::voxel::voxel(Voxel_Type type) : type(type)
+Map::voxel::voxel(Voxel_Type type, unsigned char q) : type(type), q(q)
 {
 }
 
@@ -114,6 +114,68 @@ float	Map::point::getDst(const point& a, const point& b)
 	return (std::sqrt(xi * xi + yi * yi));
 }
 
+const int	Map::surroundings::OffsetPos[3][3][3] = {
+	{{0, 1, 2},
+	 {3, 4, 5},
+	 {6, 7, 8}},
+	{{9, 10, 11},
+	 {12, -1, 13},
+	 {14, 15, 16}},
+	{{17, 18, 19},
+	 {20, 21, 22},
+	 {23, 24, 25}}};
+
+Map::surroundings::surroundings(void)
+{
+}
+
+bool	Map::surroundings::Position(int x, int y, int z)
+{
+	return (data && 1 << OffsetPos[z][y][x]);
+}
+
+void	Map::surroundings::Position(int x, int y, int z, bool block)
+{
+	unsigned int	val = 1 << OffsetPos[z + 1][y + 1][x + 1];
+
+	data &= ~val;
+	if (block)
+		data |= val;
+}
+
+/*
+bool	Map::surroundings::Face(FacePosition face)
+{
+	FacePosition faces[6] = {BOTTOM, UP, FRONT, BACK, LEFT, RIGHT}; 
+	int	tab[6][2][3] = {
+		{{1, 1, 0}, {-1, -1, -1}},
+		{{1, 1, 0}, {-1, -1, 1}},
+		{{1, 0, 1}, {-1, -1, -1}},
+		{{1, 0, 1}, {-1, 1, -1}},
+		{{0, 1, 1}, {-1, -1, -1}},
+		{{0, 1, 1}, {1, -1, -1}},
+	};
+
+	int theFace;
+	for (theFace = 0; theFace < 6; theFace++)
+	{
+		if (faces[theFace] == face)
+			break ;
+	}
+
+	int incx = tab[face][0][0];
+	int	incy = tab[face][0][1];
+	int	incz = tab[face][0][2];
+
+	bool	ret = false;
+
+	for (int i = 0, x = tab[face][1][0], y = tab[face][1][1], z = tab[face][1][2]; i < 9; i++)
+	{
+		
+	}
+}
+*/
+
 float	Map::Weight(float d)
 {
 	if (d == 0)
@@ -132,7 +194,8 @@ void	Map::voxelizeMap(void)
 			pt = interPoint(x, y);
 			for (int l = 0; l < pt.z; l++)
 			{
-				this->_vox[l][y][x] = voxel(voxel::SOIL);
+				this->_vox[l][y][x] = voxel(voxel::SOIL, 0);
+				woxelSurroundings(x, y, l);
 			}
 			displayer->addPixel(50 + x * 3, 50 + y * 3 - pt.z, 0xffffffff);
 		 }
@@ -167,4 +230,101 @@ Display* Map::displayer; // A VIRER
 	pz = sumVal/sum;
 
 	return (point(px, py, pz));
+}
+
+void				Map::exchangeWater(voxel& src, voxel& dst, const int q)
+{
+	src.q -= q;
+	dst.q += q;
+	dst.type = voxel::WATER;
+}
+
+void				Map::drainWoxels(void)
+{
+	for (int z = 0; z < CUBE_SIZE / 2; z++)
+	{
+		for (int y = 0; y < CUBE_SIZE; y++)
+		{
+			for (int x = 0; x < CUBE_SIZE; x++)
+			{
+				if (this->_vox[z][y][x].type == voxel::WATER)
+					drainWoxel(x, y, z);
+			}
+		}
+	}
+}
+
+void				Map::drainWoxel(const unsigned int x, const unsigned int y, const unsigned int z)
+{
+	surroundings	surr = woxelSurroundings(x, y, z);
+
+	voxel&	vox = this->_vox[z][y][x];
+	int		count = 0;
+	int		water = 0;
+
+	if (!surr.Position(x, y, z - 1) && this->_vox[z - 1][y][x].q != 255)
+	{
+		exchangeWater(vox, this->_vox[z - 1][y][x], vox.q - this->_vox[z - 1][y][x].q);
+		return ;
+	}
+
+	for (int i = 0; i < 9; i++)
+	{
+		int x2 = x + i % 3;
+		int y2 = y + i / 3;
+
+		if (i != 4 && surr.Position(x2, y2, z))
+		{
+			count++;
+			water += this->_vox[z][y2][x2].q;
+		}
+	}
+
+	int m = water / count;
+
+	if (m < vox.q && (vox.q - m) / count != 0)
+	{
+		int gift = (vox.q - m) / count;
+
+		for (int i = 0; i < 9; i++)
+		{
+			int x2 = x + i % 3;
+			int y2 = y + i / 3;
+			voxel& vox2 = this->_vox[z][y2][x2];
+
+			if (i != 4 && surr.Position(x2, y2, z))
+			{
+				exchangeWater(vox, vox2, vox2.q + gift <= 255 ? gift : 255 - vox2.q);
+			}
+		}
+	}
+}
+
+Map::surroundings	Map::woxelSurroundings(const unsigned int x, const unsigned int y, const unsigned int z) const
+{
+	surroundings	ret;
+
+	for (int zi = -1; zi <= 1; zi++)
+	{
+		for (int yi = -1; yi <= 1; yi++)
+		{
+			for (int xi = -1; xi <= 1; xi++)
+			{
+				bool	full = true;
+
+				if (xi == 0 && yi == 0 && zi == 0)
+					continue ;
+				if ((x == 0 && xi < 0) || (y == 0 && yi < 0) || (z == 0 && zi < 0))
+					full = true;
+				else if (x + xi >= CUBE_SIZE || y + yi >= CUBE_SIZE || z + zi >= CUBE_SIZE / 2)
+					full = true;
+				else
+				{
+					full = _vox[z + zi][y + yi][x + xi].type == voxel::SOIL;
+				}
+				ret.Position(xi, yi, zi, full);
+			}
+		}
+	}
+	return (ret);
 }
