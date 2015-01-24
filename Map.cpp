@@ -6,7 +6,7 @@
 //   By: tmielcza <tmielcza@student.42.fr>          +#+  +:+       +#+        //
 //                                                +#+#+#+#+#+   +#+           //
 //   Created: 2015/01/22 15:20:14 by tmielcza          #+#    #+#             //
-//   Updated: 2015/01/23 18:50:32 by caupetit         ###   ########.fr       //
+//   Updated: 2015/01/24 15:21:00 by caupetit         ###   ########.fr       //
 //                                                                            //
 // ************************************************************************** //
 
@@ -153,6 +153,15 @@ Map::point&	Map::point::operator+(const Map::point& rhs)
 	this->z += rhs.z;
 	return *this;
 }
+
+Map::point&	Map::point::operator+(const float& rhs)
+{
+	this->x += rhs;
+	this->y += rhs;
+	this->z += rhs;
+	return *this;
+}
+
 Map::point&	Map::point::operator-(const Map::point& rhs)
 {
 	this->x -= rhs.x;
@@ -160,6 +169,21 @@ Map::point&	Map::point::operator-(const Map::point& rhs)
 	this->z -= rhs.z;
 	return *this;
 }
+
+Map::point&	Map::point::operator-(const float& rhs)
+{
+	this->x -= rhs;
+	this->y -= rhs;
+	this->z -= rhs;
+	return *this;
+}
+
+std::ostream&	operator<<(std::ostream& o, const Map::point& rhs)
+{
+	o << rhs.x << ", " << rhs.y << ", " << rhs.z;
+	return o;
+}
+
 
 float	Map::point::getDst(const point& a, const point& b)
 {

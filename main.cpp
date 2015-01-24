@@ -6,7 +6,7 @@
 //   By: tmielcza <tmielcza@student.42.fr>          +#+  +:+       +#+        //
 //                                                +#+#+#+#+#+   +#+           //
 //   Created: 2015/01/20 16:07:50 by tmielcza          #+#    #+#             //
-//   Updated: 2015/01/22 19:48:30 by tmielcza         ###   ########.fr       //
+//   Updated: 2015/01/24 14:37:39 by caupetit         ###   ########.fr       //
 //                                                                            //
 // ************************************************************************** //
 
@@ -19,6 +19,7 @@
 #include <algorithm>
 #include "Display.hpp"
 #include "Map.hpp"
+#include "Raycast.hpp"
 
 /*
 point*		getNeighbours(float x, float y)
@@ -98,7 +99,9 @@ int		main(int ac, char **av)
 
 	map.voxelizeMap();
 
+	Raycast		raycast(Map::point(-100, -100, 0), 640, 480);
 
+	raycast.raycastMapVoxels(map, *dis);
 //	displayMap(*dis);
 //	dis->draw();
 

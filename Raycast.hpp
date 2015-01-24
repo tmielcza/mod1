@@ -6,13 +6,14 @@
 //   By: caupetit <marvin@42.fr>                    +#+  +:+       +#+        //
 //                                                +#+#+#+#+#+   +#+           //
 //   Created: 2015/01/23 14:59:35 by caupetit          #+#    #+#             //
-//   Updated: 2015/01/23 20:52:30 by caupetit         ###   ########.fr       //
+//   Updated: 2015/01/24 11:40:10 by caupetit         ###   ########.fr       //
 //                                                                            //
 // ************************************************************************** //
 
 #ifndef RAYCAST_HPP
 # define RAYCAST_HPP
 
+# include <iostream>
 # include <cmath>
 # include "Map.hpp"
 # include "Display.hpp"

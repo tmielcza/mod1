@@ -6,7 +6,7 @@
 //   By: tmielcza <tmielcza@student.42.fr>          +#+  +:+       +#+        //
 //                                                +#+#+#+#+#+   +#+           //
 //   Created: 2015/01/22 15:07:14 by tmielcza          #+#    #+#             //
-//   Updated: 2015/01/23 18:50:17 by caupetit         ###   ########.fr       //
+//   Updated: 2015/01/24 13:31:33 by caupetit         ###   ########.fr       //
 //                                                                            //
 // ************************************************************************** //
 
@@ -38,7 +38,9 @@ public:
 		point&	operator/(const point& rhs);
 		point&	operator/(const float& rhs);
 		point&	operator+(const point& rhs);
+		point&	operator+(const float& rhs);
 		point&	operator-(const point& rhs);
+		point&	operator-(const float& rhs);
 
 		float x, y, z, dst;
 
@@ -81,5 +83,8 @@ private:
 	point	interPoint(const float x, const float y) const;
 	static float	Weight(float d);
 };
+
+std::ostream& operator<<(std::ostream& o, const Map::point& rhs);
+
 
 #endif // MAP_HPP
