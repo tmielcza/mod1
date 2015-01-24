@@ -6,7 +6,7 @@
 //   By: tmielcza <tmielcza@student.42.fr>          +#+  +:+       +#+        //
 //                                                +#+#+#+#+#+   +#+           //
 //   Created: 2015/01/22 15:07:14 by tmielcza          #+#    #+#             //
-//   Updated: 2015/01/24 15:13:56 by tmielcza         ###   ########.fr       //
+//   Updated: 2015/01/24 16:00:56 by tmielcza         ###   ########.fr       //
 //                                                                            //
 // ************************************************************************** //
 
@@ -17,6 +17,7 @@
 
 # include <list>
 # include <vector>
+# include <cmath>
 
 # include "Display.hpp" // A VIRER
 
@@ -30,11 +31,21 @@ public:
 		point(const point& src);
 		~point(void);
 
+		void	normalize(void);
 		point&	operator=(const point& rhs);
+		point&	operator*(const point& rhs);
+		point&	operator*(const float& rhs);
+		point&	operator/(const point& rhs);
+		point&	operator/(const float& rhs);
+		point&	operator+(const point& rhs);
+		point&	operator+(const float& rhs);
+		point&	operator-(const point& rhs);
+		point&	operator-(const float& rhs);
 
 		float x, y, z, dst;
 
 		static float	getDst(const point& a, const point& b);
+		static point	cross(const point& a, const point& b);
 	};
 
 	struct voxel
@@ -53,6 +64,8 @@ public:
 
 	void	setPoints(std::list<point>* pts);
 	void	voxelizeMap(void);
+	
+	const std::vector< std::vector< std::vector <voxel> > >& voxels(void) const;
 
 	void	drainWoxel(const unsigned int x, const unsigned int y, const unsigned int z);
 	void	drainWoxels(void);
@@ -91,5 +104,8 @@ private:
 	point	interPoint(const float x, const float y) const;
 	static float	Weight(float d);
 };
+
+std::ostream& operator<<(std::ostream& o, const Map::point& rhs);
+
 
 #endif // MAP_HPP
