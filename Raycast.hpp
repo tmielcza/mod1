@@ -6,7 +6,7 @@
 //   By: caupetit <marvin@42.fr>                    +#+  +:+       +#+        //
 //                                                +#+#+#+#+#+   +#+           //
 //   Created: 2015/01/23 14:59:35 by caupetit          #+#    #+#             //
-//   Updated: 2015/01/25 14:57:25 by tmielcza         ###   ########.fr       //
+//   Updated: 2015/01/25 20:26:50 by caupetit         ###   ########.fr       //
 //                                                                            //
 // ************************************************************************** //
 
@@ -22,6 +22,8 @@ class		Raycast
 {
 public:
 
+	enum	coord {X, Y, Z};
+
 	struct	Ray
 	{
 		Ray(Map::point origin, Map::point direction);
@@ -35,17 +37,32 @@ public:
 	};
 
 	/* Constructors / Destructors */
-	Raycast (const Map::point& p,const int& w,const int& h, const float& zoom);
+	Raycast (const Map::point& p, Display& d,
+			 const std::vector<std::vector<std::vector<Map::voxel> > >& map);
+//	Raycast (const Map::point& p,const int& w,const int& h, const float& zoom);
 	~Raycast (void);
 
 	/* Members Functions */
 
-	bool	raycast(Map::voxel& vox,
-					const std::vector<std::vector<std::vector<Map::voxel> > >& map,
-					Ray ray);
-	void	raycastMapVoxels(const Map& map, Display & display);
+
+	void		raycastMapVoxels1(void);
+	bool		raycast1(Map::voxel& vox, Ray ray);
+	void		raycastOneCoord(Map::voxel& vox, Ray ray, float& dir, coord C);
+	Map::point	getFirstPoint(Ray ray, coord C);
+	bool		raycastInMap(Map::point& hitPoint, const Ray& ray,
+							 Map::point& point);
+	bool		isInMap(Map::point& p);
+	void		setZoom(const float& z);
+
+
+	bool		raycast(Map::voxel& vox,
+						const std::vector<std::vector<std::vector<Map::voxel> > >& map,
+						Ray ray);
+	void		raycastMapVoxels(const Map& map, Display & display);
 
 private:
+	const std::vector<std::vector<std::vector<Map::voxel> > >& _map;
+	Display&	_display;
 	Map::point	_camPos;
 	Map::point	_camDir;
 	Map::point	_dir;
@@ -54,6 +71,10 @@ private:
 	Map::point	_upLeft;
 	Map::point	_upDir;
 	Map::point	_rightDir;
+	float		_zoom;
+	float		_shortestDist;
+	float		_dist;
+
 
 	Raycast (void);
 	Raycast(Raycast const & rhs);

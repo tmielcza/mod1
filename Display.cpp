@@ -6,13 +6,23 @@
 //   By: tmielcza <tmielcza@student.42.fr>          +#+  +:+       +#+        //
 //                                                +#+#+#+#+#+   +#+           //
 //   Created: 2015/01/21 12:44:56 by tmielcza          #+#    #+#             //
-//   Updated: 2015/01/23 15:58:26 by caupetit         ###   ########.fr       //
+//   Updated: 2015/01/25 17:31:14 by caupetit         ###   ########.fr       //
 //                                                                            //
 // ************************************************************************** //
 
 #include <SDL.h>
 #include <iostream>
 #include "Display.hpp"
+
+unsigned int	Display::getH(void) const
+{
+	return this->_h;
+}
+
+unsigned int	Display::getW(void) const
+{
+	return this->_w;
+}
 
 Display::Display(void) : _w(640), _h(480)
 {

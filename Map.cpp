@@ -6,7 +6,7 @@
 //   By: tmielcza <tmielcza@student.42.fr>          +#+  +:+       +#+        //
 //                                                +#+#+#+#+#+   +#+           //
 //   Created: 2015/01/24 15:59:11 by tmielcza          #+#    #+#             //
-//   Updated: 2015/01/25 13:00:41 by tmielcza         ###   ########.fr       //
+//   Updated: 2015/01/25 18:00:12 by caupetit         ###   ########.fr       //
 //                                                                            //
 // ************************************************************************** //
 
@@ -160,6 +160,15 @@ std::ostream&	operator<<(std::ostream& o, const Map::point& rhs)
 	return o;
 }
 
+float	Map::point::dist(const point& a, const point& b)
+{
+	float xi, yi, zi;
+
+	xi = a.x - b.x;
+	yi = a.y - b.y;
+	zi = a.z - b.z;
+	return (std::sqrt(xi * xi + yi * yi + zi * zi));
+}
 
 float	Map::point::getDst(const point& a, const point& b)
 {

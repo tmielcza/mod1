@@ -6,7 +6,7 @@
 //   By: tmielcza <tmielcza@student.42.fr>          +#+  +:+       +#+        //
 //                                                +#+#+#+#+#+   +#+           //
 //   Created: 2015/01/21 12:37:22 by tmielcza          #+#    #+#             //
-//   Updated: 2015/01/22 19:15:29 by tmielcza         ###   ########.fr       //
+//   Updated: 2015/01/25 17:30:15 by caupetit         ###   ########.fr       //
 //                                                                            //
 // ************************************************************************** //
 
@@ -24,6 +24,9 @@ public:
 
 	void		addPixel(unsigned int x, unsigned int y, Uint32 col);
 	void		draw(void);
+
+	unsigned int	getH(void) const;
+	unsigned int	getW(void) const;
 
 	Display&	operator=(const Display& rhs);
 
