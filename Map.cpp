@@ -6,7 +6,7 @@
 //   By: tmielcza <tmielcza@student.42.fr>          +#+  +:+       +#+        //
 //                                                +#+#+#+#+#+   +#+           //
 //   Created: 2015/01/24 15:59:11 by tmielcza          #+#    #+#             //
-//   Updated: 2015/01/25 13:00:41 by tmielcza         ###   ########.fr       //
+//   Updated: 2015/01/25 20:40:56 by tmielcza         ###   ########.fr       //
 //                                                                            //
 // ************************************************************************** //
 
@@ -299,6 +299,12 @@ Map::point	Map::interPoint(const float x, const float y) const
 
 void				Map::exchangeWater(voxel& src, voxel& dst, const int q)
 {
+	if (dst.type == voxel::SOIL)
+	{
+//		std::cout << "VIEUX SEXE D'HOMME" << std::endl;
+//		exit(0);
+		return ;
+	}
 	src.q -= q;
 	dst.q += q;
 	dst.type = voxel::WATER;
@@ -333,7 +339,8 @@ void				Map::drainWoxel(const unsigned int x, const unsigned int y, const unsign
 	if (!surr.Position(x, y, z - 1) && this->_vox[z - 1][y][x].q != 255)
 	{
 //		std::cout << "Suce mon zoze." << std::endl;
-		exchangeWater(vox, this->_vox[z - 1][y][x], vox.q - this->_vox[z - 1][y][x].q);
+		int		q = this->_vox[z - 1][y][x].q;
+		exchangeWater(vox, this->_vox[z - 1][y][x], vox.q + q > 255 ? 255 - q : vox.q);
 		if (vox.q == 0)
 			return ;
 	}
@@ -343,14 +350,14 @@ void				Map::drainWoxel(const unsigned int x, const unsigned int y, const unsign
 		int x2 = x + i % 3;
 		int y2 = y + i / 3;
 
-		if (i != 4 && surr.Position(x2, y2, z))
+		if (i != 4 && !surr.Position(x2, y2, z) && vox.q > this->_vox[z][y2][x2].q)
 		{
 			count++;
 			water += this->_vox[z][y2][x2].q;
 		}
 	}
 
-	if (!water || !count)
+	if (!count)
 		return; 
 
 	int m = water / count;
@@ -359,13 +366,15 @@ void				Map::drainWoxel(const unsigned int x, const unsigned int y, const unsign
 	{
 		int gift = (vox.q - m) / count;
 
+		std::cout << gift << " & " << static_cast<int>(vox.q) << std::endl;
+
 		for (int i = 0; i < 9; i++)
 		{
 			int x2 = x + i % 3;
 			int y2 = y + i / 3;
 			voxel& vox2 = this->_vox[z][y2][x2];
 
-			if (i != 4 && surr.Position(x2, y2, z))
+			if (i != 4 && !surr.Position(x2, y2, z))
 			{
 				exchangeWater(vox, vox2, vox2.q + gift <= 255 ? gift : 255 - vox2.q);
 			}
