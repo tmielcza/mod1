@@ -6,7 +6,7 @@
 //   By: caupetit <marvin@42.fr>                    +#+  +:+       +#+        //
 //                                                +#+#+#+#+#+   +#+           //
 //   Created: 2015/01/23 14:59:29 by caupetit          #+#    #+#             //
-//   Updated: 2015/01/27 14:11:43 by caupetit         ###   ########.fr       //
+//   Updated: 2015/01/27 16:34:56 by caupetit         ###   ########.fr       //
 //                                                                            //
 // ************************************************************************** //
 
@@ -60,17 +60,43 @@ void	Raycast::raycastMapVoxels(void)
 
 bool		Raycast::raycast(Map::voxel& vox, Ray ray)
 {
-//	std::cout << " ------------- " << std::endl;	
 	this->_shortestDist = 0;
 	this->_dist = 0;
-	raycastOneCoord(vox, ray, ray.dir.x, Raycast::X);
-	raycastOneCoord(vox, ray, ray.dir.y, Raycast::Y);
-	raycastOneCoord(vox, ray, ray.dir.z, Raycast::Z);
+
+
+
+	if (this->rayPossible(ray))
+	{
+		raycastOneCoord(vox, ray, ray.dir.x, Raycast::X);
+		raycastOneCoord(vox, ray, ray.dir.y, Raycast::Y);
+		raycastOneCoord(vox, ray, ray.dir.z, Raycast::Z);
+	}
 
 	if (vox.type == Map::voxel::VOID)
 		return false;
-//	std::cout << "true found" << std::endl;
 	return true;
+}
+
+bool		Raycast::rayPossible(Ray ray)
+{
+	Map::point	test;
+
+	test = getFirstPoint(ray, X);
+	if (test.x >= 0 && test.x < CUBE_SIZE
+		&& test.y >= 0 && test.y < CUBE_SIZE
+		&& test.z >= 0 && test.z < CUBE_SIZE / 2)
+		return true;
+	test = getFirstPoint(ray, Y);
+	if (test.x >= 0 && test.x < CUBE_SIZE
+		&& test.y >= 0 && test.y < CUBE_SIZE
+		&& test.z >= 0 && test.z < CUBE_SIZE / 2)
+		return true;
+	test = getFirstPoint(ray, Z);
+	if (test.x >= 0 && test.x < CUBE_SIZE
+		&& test.y >= 0 && test.y < CUBE_SIZE
+		&& test.z >= 0 && test.z < CUBE_SIZE / 2)
+		return true;
+	return false;
 }
 
 void		Raycast::raycastOneCoord(Map::voxel& vox, Ray ray,
@@ -79,18 +105,12 @@ void		Raycast::raycastOneCoord(Map::voxel& vox, Ray ray,
 	Map::point	firstPoint;
 	Map::point	hitPoint;
 
-//	std::cout << " ---- " << std::endl;
 	if (dir != 0)
 	{
-//		std::cout << "dir 0 avant: " << ray.dir << std::endl;
 		firstPoint = getFirstPoint(ray, C);
-//		std::cout << "dir 1 avant: " << ray.dir << std::endl;
 		ray.dir = ray.dir * std::abs(1 / dir);
-//		std::cout << "dir 1 apres: " << ray.dir << std::endl;
-//		std::cout << "FirstPoint: (" << firstPoint << ")" << std::endl;
-		if (raycastInMap(hitPoint, ray, firstPoint))
+		if (raycastInMap(hitPoint, ray, firstPoint, C))
 		{
-//			std::cout << "found" << std::endl;
 			this->_dist = Map::point::dist(hitPoint, ray.origin);
 			if (_shortestDist == 0 || _dist < _shortestDist)
 			{
@@ -102,23 +122,24 @@ void		Raycast::raycastOneCoord(Map::voxel& vox, Ray ray,
 }
 
 bool		Raycast::raycastInMap(Map::point& hitPoint, const Ray& ray,
-								  Map::point point)
+								  Map::point point, coord C)
 {
 	int		x;
 	int		y;
 	int		z;
+	int		size;
 
 	x = std::floor(point.x);
 	y = std::floor(point.y);
 	z = std::floor(point.z);
-	while(x >= 0 && x < CUBE_SIZE
-		&& y >= 0 && y < CUBE_SIZE
-		&& z >= 0 && z < CUBE_SIZE / 2)
+	size = C == Z ? CUBE_SIZE / 2 : CUBE_SIZE;
+	for(int i = 0 ; i < size ; i++)
 	{
-//		std::cout << "In Map !: x:" << x << " y: " << y << " z: " << z << std::endl;
-		if (this->_map[z][y][x].type != Map::voxel::VOID)
+		if (x >= 0 && x < CUBE_SIZE
+			&& y >= 0 && y < CUBE_SIZE
+			&& z >= 0 && z < CUBE_SIZE / 2
+			&& this->_map[z][y][x].type != Map::voxel::VOID)
 		{
-//			std::cout << "Found ! BLock OK !!" << std::endl;
 			hitPoint = point;
 			return true;
 		}
@@ -133,7 +154,7 @@ bool		Raycast::raycastInMap(Map::point& hitPoint, const Ray& ray,
 Map::point	Raycast::getFirstPoint(Ray ray, coord C)
 {
 	Map::point	first;
-	float		diff, ratio;
+	float		diff = 0, ratio;
 
 	if (C == X)
 	{
@@ -169,17 +190,13 @@ Map::point	Raycast::getFirstPoint(Ray ray, coord C)
 void	Raycast::generateCam(void)
 {
 	this->_upDir = Map::point(0, 0, 1);
-	this->_dir = _camPos - _camDir;
+	this->_dir = _camDir - _camPos;
 	this->_dir.normalize();
 	this->_rightDir = Map::point::cross(this->_upDir, this->_dir);
 	this->_upDir    = Map::point::cross(this->_dir, this->_rightDir);
 	this->_rightDir = this->_rightDir * _zoom;
 	this->_upDir = this->_upDir * _zoom;
 	_upLeft = _camPos + (_upDir * (this->_h / 2)) - (_rightDir * (this->_w / 2));
-	std::cout << "DIR: (" << this->_dir << ")" << std::endl;
-	std::cout << "UPLEFT: (" << this->_upLeft << ")" << std::endl;
-	std::cout << "UPDIR: (" << this->_upDir << ")" << std::endl;
-	std::cout << "RIGHT: (" << this->_rightDir << ")" << std::endl;
 }
 
 void	Raycast::setZoom(const float& z)

@@ -6,7 +6,7 @@
 //   By: tmielcza <tmielcza@student.42.fr>          +#+  +:+       +#+        //
 //                                                +#+#+#+#+#+   +#+           //
 //   Created: 2015/01/20 16:07:50 by tmielcza          #+#    #+#             //
-//   Updated: 2015/01/27 14:00:23 by caupetit         ###   ########.fr       //
+//   Updated: 2015/01/27 16:29:51 by caupetit         ###   ########.fr       //
 //                                                                            //
 // ************************************************************************** //
 
@@ -116,10 +116,10 @@ int		main(int ac, char **av)
 	}
 */
 
-	raycast.setZoom(0.4f);
+	raycast.setZoom(0.3f);
 	raycast.raycastMapVoxels();
 	dis->draw();
-	SDL_Delay(6000);
+	SDL_Delay(1000);
 
 	return (0);
 }

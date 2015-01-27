@@ -6,7 +6,7 @@
 #    By: caupetit <marvin@42.fr>                    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2015/01/05 15:46:59 by caupetit          #+#    #+#              #
-#    Updated: 2015/01/27 15:22:43 by caupetit         ###   ########.fr        #
+#    Updated: 2015/01/27 16:34:27 by caupetit         ###   ########.fr        #
 #                                                                              #
 #******************************************************************************#
 
@@ -15,10 +15,10 @@ SRC =	Display.cpp \
 		Map.cpp \
 		Raycast.cpp \
 		main.cpp
-CC = g++
+CC = g++ -O3
 FLAGS = -Wall -Wextra -Werror
 SDL2 = -F ~/Library/Frameworks -framework SDL2 \
-		-I ~/Library/Frameworks/SDL2.framework/Headers -g
+		-I ~/Library/Frameworks/SDL2.framework/Headers
 OBJ = $(SRC:%.cpp=%.o)
 
 all: $(NAME)

@@ -6,7 +6,7 @@
 //   By: caupetit <marvin@42.fr>                    +#+  +:+       +#+        //
 //                                                +#+#+#+#+#+   +#+           //
 //   Created: 2015/01/23 14:59:35 by caupetit          #+#    #+#             //
-//   Updated: 2015/01/27 12:55:52 by caupetit         ###   ########.fr       //
+//   Updated: 2015/01/27 16:18:37 by caupetit         ###   ########.fr       //
 //                                                                            //
 // ************************************************************************** //
 
@@ -66,7 +66,8 @@ private:
 	void		raycastOneCoord(Map::voxel& vox, Ray ray, float& dir, coord C);
 	Map::point	getFirstPoint(Ray ray, coord C);
 	bool		raycastInMap(Map::point& hitPoint, const Ray& ray,
-							 Map::point point);
+							 Map::point point, coord C);
+	bool		rayPossible(Ray ray);
 	void		generateCam(void);
 
 	Raycast (void);
