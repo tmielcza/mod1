@@ -6,7 +6,7 @@
 #    By: caupetit <marvin@42.fr>                    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2015/01/05 15:46:59 by caupetit          #+#    #+#              #
-#    Updated: 2015/01/23 15:09:47 by caupetit         ###   ########.fr        #
+#    Updated: 2015/01/27 15:22:43 by caupetit         ###   ########.fr        #
 #                                                                              #
 #******************************************************************************#
 
@@ -17,22 +17,20 @@ SRC =	Display.cpp \
 		main.cpp
 CC = g++
 FLAGS = -Wall -Wextra -Werror
-LIBS = -lncurses
 SDL2 = -F ~/Library/Frameworks -framework SDL2 \
 		-I ~/Library/Frameworks/SDL2.framework/Headers -g
-
 OBJ = $(SRC:%.cpp=%.o)
 
 all: $(NAME)
 
 $(NAME): $(OBJ)
 	@echo "\033[32m=>\033[0m Compiling \033[33m$(NAME)\033[0m"
-	@$(CC) $(FLAGS) -o $@ $(OBJ) $(LIBS) $(SDL2)
+	@$(CC) $(FLAGS) -o $@ $(OBJ) $(SDL2)
 	@echo "Compilation \033[32mSuccess\033[0m"
 
 %.o: %.cpp
 	@echo "\033[32m->\033[0m Compiling \033[33m$<\033[0m"
-	@$(CC) $(FLAGS) -o $@ -c $< $(LIBS) $(SDL2)
+	@$(CC) $(FLAGS) -o $@ -c $< $(SDL2)
 
 clean:
 	@rm -f $(OBJ)
