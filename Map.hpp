@@ -6,7 +6,7 @@
 //   By: tmielcza <tmielcza@student.42.fr>          +#+  +:+       +#+        //
 //                                                +#+#+#+#+#+   +#+           //
 //   Created: 2015/01/22 15:07:14 by tmielcza          #+#    #+#             //
-//   Updated: 2015/01/24 19:42:15 by caupetit         ###   ########.fr       //
+//   Updated: 2015/01/25 19:20:27 by caupetit         ###   ########.fr       //
 //                                                                            //
 // ************************************************************************** //
 
@@ -42,6 +42,7 @@ public:
 
 		float x, y, z, dst;
 
+		static float	dist(const point & a, const point& b);
 		static float	getDst(const point& a, const point& b);
 		static point	cross(const point& a, const point& b);
 	};

@@ -6,7 +6,7 @@
 //   By: tmielcza <tmielcza@student.42.fr>          +#+  +:+       +#+        //
 //                                                +#+#+#+#+#+   +#+           //
 //   Created: 2015/01/24 15:59:11 by tmielcza          #+#    #+#             //
-//   Updated: 2015/01/25 20:40:56 by tmielcza         ###   ########.fr       //
+//   Updated: 2015/01/27 16:05:13 by tmielcza         ###   ########.fr       //
 //                                                                            //
 // ************************************************************************** //
 
@@ -160,6 +160,15 @@ std::ostream&	operator<<(std::ostream& o, const Map::point& rhs)
 	return o;
 }
 
+float	Map::point::dist(const point& a, const point& b)
+{
+	float xi, yi, zi;
+
+	xi = a.x - b.x;
+	yi = a.y - b.y;
+	zi = a.z - b.z;
+	return (std::sqrt(xi * xi + yi * yi + zi * zi));
+}
 
 float	Map::point::getDst(const point& a, const point& b)
 {
@@ -187,14 +196,13 @@ Map::surroundings::surroundings(void) : data(0)
 
 bool	Map::surroundings::Position(int x, int y, int z)
 {
-	return (data && 1 << OffsetPos[z + 1][y + 1][x + 1]);
+	return (data & 1 << OffsetPos[z + 1][y + 1][x + 1]);
 }
 
 void	Map::surroundings::Position(int x, int y, int z, bool block)
 {
 	unsigned int	val = 1 << OffsetPos[z + 1][y + 1][x + 1];
 
-//	std::cout<<"pos:"<<x<<","<< y << "," << z << " - shift: " << OffsetPos[z+1][y+1][x+1]<<" - val: "<<val<<" - data: "<<data<<std::endl;
 	data &= ~val;
 	if (block)
 		data |= val;
@@ -335,10 +343,8 @@ void				Map::drainWoxel(const unsigned int x, const unsigned int y, const unsign
 	int		count = 0;
 	int		water = 0;
 
-//	std::cout << x << " " << y << " " << z << " : " << surr.Position(x, y, z - 1) << " " << surr.Position(x,y,z+1)<< std::endl;
-	if (!surr.Position(x, y, z - 1) && this->_vox[z - 1][y][x].q != 255)
+	if (!surr.Position(0, 0, z - 1) && this->_vox[z - 1][y][x].q != 255)
 	{
-//		std::cout << "Suce mon zoze." << std::endl;
 		int		q = this->_vox[z - 1][y][x].q;
 		exchangeWater(vox, this->_vox[z - 1][y][x], vox.q + q > 255 ? 255 - q : vox.q);
 		if (vox.q == 0)
@@ -347,13 +353,13 @@ void				Map::drainWoxel(const unsigned int x, const unsigned int y, const unsign
 
 	for (int i = 0; i < 9; i++)
 	{
-		int x2 = x + i % 3;
-		int y2 = y + i / 3;
+		int x2 = i % 3 - 1;
+		int y2 = i / 3 - 1;
 
-		if (i != 4 && !surr.Position(x2, y2, z) && vox.q > this->_vox[z][y2][x2].q)
+		if (i != 4 && !surr.Position(x2, y2, 0) && vox.q > this->_vox[z][y2 + y][x2 + x].q)
 		{
 			count++;
-			water += this->_vox[z][y2][x2].q;
+			water += this->_vox[z][y2 + y][x2 + x].q;
 		}
 	}
 
@@ -366,17 +372,15 @@ void				Map::drainWoxel(const unsigned int x, const unsigned int y, const unsign
 	{
 		int gift = (vox.q - m) / count;
 
-		std::cout << gift << " & " << static_cast<int>(vox.q) << std::endl;
-
 		for (int i = 0; i < 9; i++)
 		{
-			int x2 = x + i % 3;
-			int y2 = y + i / 3;
-			voxel& vox2 = this->_vox[z][y2][x2];
+			int x2 = i % 3 - 1;
+			int y2 = i / 3 - 1;
 
-			if (i != 4 && !surr.Position(x2, y2, z))
+			if (i != 4 && !surr.Position(x2, y2, 0) && vox.q > this->_vox[z][y2 + y][x2 + x].q)
 			{
-				exchangeWater(vox, vox2, vox2.q + gift <= 255 ? gift : 255 - vox2.q);
+				voxel& vox2 = this->_vox[z][y2 + y][x2 + x];
+				exchangeWater(vox, vox2, gift + vox2.q <= 255 ? gift : 255 - vox2.q);
 			}
 		}
 	}
