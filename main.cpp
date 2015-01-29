@@ -6,7 +6,7 @@
 //   By: tmielcza <tmielcza@student.42.fr>          +#+  +:+       +#+        //
 //                                                +#+#+#+#+#+   +#+           //
 //   Created: 2015/01/20 16:07:50 by tmielcza          #+#    #+#             //
-//   Updated: 2015/01/29 17:26:15 by tmielcza         ###   ########.fr       //
+//   Updated: 2015/01/29 20:47:26 by caupetit         ###   ########.fr       //
 //                                                                            //
 // ************************************************************************** //
 
@@ -97,9 +97,9 @@ int		main(int ac, char **av)
 	map.setPoints(pts);
 	map.voxelizeMap();
 
-	Raycast		raycast(Map::point(400, 100, 200), *dis, map.voxels());
+//	Raycast		raycast(Map::point(400, 100, 200), *dis, map.voxels());
 
-	raycast.setZoom(0.3);
+//	raycast.setZoom(0.3);
 
 /*
 	for (int i = 0; i < 100; i++)

@@ -6,14 +6,13 @@
 #    By: caupetit <marvin@42.fr>                    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2015/01/05 15:46:59 by caupetit          #+#    #+#              #
-#    Updated: 2015/01/29 16:55:20 by tmielcza         ###   ########.fr        #
+#    Updated: 2015/01/29 20:47:04 by caupetit         ###   ########.fr        #
 #                                                                              #
 #******************************************************************************#
 
 NAME = mod1
 SRC =	Display.cpp \
 		Map.cpp \
-		Raycast.cpp \
 		Utils.cpp \
 		main.cpp
 CC = g++ -O3
