@@ -6,7 +6,7 @@
 //   By: tmielcza <tmielcza@student.42.fr>          +#+  +:+       +#+        //
 //                                                +#+#+#+#+#+   +#+           //
 //   Created: 2015/01/21 12:37:22 by tmielcza          #+#    #+#             //
-//   Updated: 2015/01/25 17:30:15 by caupetit         ###   ########.fr       //
+//   Updated: 2015/01/29 16:50:03 by tmielcza         ###   ########.fr       //
 //                                                                            //
 // ************************************************************************** //
 
@@ -14,6 +14,7 @@
 # define DISPLAY_HPP
 
 # include <SDL.h>
+# include <OpenGL/gl.h>
 
 class Display
 {
@@ -22,21 +23,29 @@ public:
 	~Display(void);
 	Display(const Display& src);
 
-	void		addPixel(unsigned int x, unsigned int y, Uint32 col);
+//	void		addPixel(unsigned int x, unsigned int y, Uint32 col);
 	void		draw(void);
 
 	unsigned int	getH(void) const;
 	unsigned int	getW(void) const;
 
+	void			initShaderProgram(std::string name);
+
 	Display&	operator=(const Display& rhs);
 
 private:
 	SDL_Window*		_win;
-	SDL_Renderer*	_ren;
-	SDL_Texture*	_tex;
-	Uint32*			_pix;
+	SDL_GLContext	_glc;
+//	SDL_Renderer*	_ren;
+//	SDL_Texture*	_tex;
+//	Uint32*			_pix;
 	unsigned int	_w;
 	unsigned int	_h;
+	GLuint			_prog;
+	GLuint			_frag;
+
+	GLuint			compileShader(const std::string name, const GLenum flag) const;
+
 };
 
 #endif // DISPLAY_HPP

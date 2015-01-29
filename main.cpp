@@ -6,11 +6,12 @@
 //   By: tmielcza <tmielcza@student.42.fr>          +#+  +:+       +#+        //
 //                                                +#+#+#+#+#+   +#+           //
 //   Created: 2015/01/20 16:07:50 by tmielcza          #+#    #+#             //
-//   Updated: 2015/01/27 16:38:08 by tmielcza         ###   ########.fr       //
+//   Updated: 2015/01/29 17:26:15 by tmielcza         ###   ########.fr       //
 //                                                                            //
 // ************************************************************************** //
 
 #include <SDL.h>
+#include <OpenGL/gl.h>
 #include <iostream>
 #include <fstream>
 #include <sstream>
@@ -43,7 +44,7 @@ point*		getNeighbours(float x, float y)
 }
 */
 
-std::list<Map::point>*	getFile(std::string name)
+std::list<Map::point>*	getMod1File(std::string name)
 {
 	std::ifstream	fs(name.c_str());
 	std::string	str;
@@ -89,16 +90,17 @@ int		main(int ac, char **av)
 	}
 
 
-	std::list<Map::point>* pts = getFile(av[1]);
+	std::list<Map::point>* pts = getMod1File(av[1]);
 
 	Map	map;
 
 	map.setPoints(pts);
 	map.voxelizeMap();
 
-	Raycast		raycast(Map::point(0, 200, 80), *dis, map.voxels());
+	Raycast		raycast(Map::point(400, 100, 200), *dis, map.voxels());
 
-	raycast.setZoom(0.2);
+	raycast.setZoom(0.3);
+
 /*
 	for (int i = 0; i < 100; i++)
 	{
@@ -106,20 +108,27 @@ int		main(int ac, char **av)
 			map.PutWater(i, 1, j);
 	}
 */
+	dis->initShaderProgram("raycast.frag");
 
-	for (int i = 0; i < 300; i++)
-	{
-//		for (int j = 40; j < 80; j++)
-		for (int j = 0; j < 1000; j++)
-		{
-			map.PutWater(40, 100, 50);
-			map.drainWoxels();
-		}
-		raycast.raycastMapVoxels1();
-		dis->draw();
-	}
+	glClearColor(1,0,0,1);
+	glClear(GL_COLOR_BUFFER_BIT);
 
-	SDL_Delay(10000);
+    glViewport(0, 0, dis->getW(), dis->getH());
+    glMatrixMode(GL_PROJECTION);
+    glLoadIdentity();
+    glOrtho(0, 1, 0, 1, 0, 1);
+    glMatrixMode(GL_MODELVIEW);
+    glLoadIdentity();
+
+	glBegin(GL_QUADS);
+	glVertex3f(-1.0, -1.0, 0.0);
+	glVertex3f(-1.0, 1.0, 0.0);
+	glVertex3f(1.0, 1.0, 0.0); 
+	glVertex3f(1.0, -1.0, 0.0);
+	glEnd();
+
+	dis->draw();
+	SDL_Delay(15000);
 
 	return (0);
 }

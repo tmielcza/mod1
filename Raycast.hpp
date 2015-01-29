@@ -6,7 +6,7 @@
 //   By: caupetit <marvin@42.fr>                    +#+  +:+       +#+        //
 //                                                +#+#+#+#+#+   +#+           //
 //   Created: 2015/01/23 14:59:35 by caupetit          #+#    #+#             //
-//   Updated: 2015/01/25 20:26:50 by caupetit         ###   ########.fr       //
+//   Updated: 2015/01/27 16:18:37 by caupetit         ###   ########.fr       //
 //                                                                            //
 // ************************************************************************** //
 
@@ -44,21 +44,8 @@ public:
 
 	/* Members Functions */
 
-
-	void		raycastMapVoxels1(void);
-	bool		raycast1(Map::voxel& vox, Ray ray);
-	void		raycastOneCoord(Map::voxel& vox, Ray ray, float& dir, coord C);
-	Map::point	getFirstPoint(Ray ray, coord C);
-	bool		raycastInMap(Map::point& hitPoint, const Ray& ray,
-							 Map::point& point);
-	bool		isInMap(Map::point& p);
+	void		raycastMapVoxels(void);
 	void		setZoom(const float& z);
-
-
-	bool		raycast(Map::voxel& vox,
-						const std::vector<std::vector<std::vector<Map::voxel> > >& map,
-						Ray ray);
-	void		raycastMapVoxels(const Map& map, Display & display);
 
 private:
 	const std::vector<std::vector<std::vector<Map::voxel> > >& _map;
@@ -75,6 +62,13 @@ private:
 	float		_shortestDist;
 	float		_dist;
 
+	bool		raycast(Map::voxel& vox, Ray ray);
+	void		raycastOneCoord(Map::voxel& vox, Ray ray, float& dir, coord C);
+	Map::point	getFirstPoint(Ray ray, coord C);
+	bool		raycastInMap(Map::point& hitPoint, const Ray& ray,
+							 Map::point point, coord C);
+	bool		rayPossible(Ray ray);
+	void		generateCam(void);
 
 	Raycast (void);
 	Raycast(Raycast const & rhs);
