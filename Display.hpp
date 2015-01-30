@@ -6,7 +6,7 @@
 //   By: tmielcza <tmielcza@student.42.fr>          +#+  +:+       +#+        //
 //                                                +#+#+#+#+#+   +#+           //
 //   Created: 2015/01/21 12:37:22 by tmielcza          #+#    #+#             //
-//   Updated: 2015/01/30 15:07:59 by caupetit         ###   ########.fr       //
+//   Updated: 2015/01/30 18:28:02 by tmielcza         ###   ########.fr       //
 //                                                                            //
 // ************************************************************************** //
 
@@ -24,7 +24,7 @@ public:
 	Display(const Display& src);
 
 //	void		addPixel(unsigned int x, unsigned int y, Uint32 col);
-	void			draw(const int* vtypes, const int*vinfos);
+	void			draw(const void* data, const int x, const int y, const int z);
 
 	unsigned int	getH(void) const;
 	unsigned int	getW(void) const;
@@ -43,6 +43,7 @@ private:
 	unsigned int	_h;
 	GLuint			_prog;
 	GLuint			_frag;
+	GLuint			_mapTex;
 
 	GLuint			compileShader(const std::string name, const GLenum flag) const;
 

@@ -1,7 +1,6 @@
 #define SIZE 128
 
-uniform int vTypes[SIZE * SIZE * (SIZE / 2)];
-uniform int vInfos[SIZE * SIZE * (SIZE / 2)];
+uniform sampler3D MapTex;
 
 vec3    getFirstX(vec3 o, vec3 dir)
 {
@@ -78,11 +77,8 @@ bool    rayPossible(vec3 o, vec3 dir)
 
 bool    getPoint(vec3 p)
 {
-	int tab[2020];
-	tab[2000] = 1;
-//	return (p.z == 0.);
-	return (tab[20000] == 1);
-//    return (vTypes[int(p.x) + int(p.y) * SIZE + int(p.z) * SIZE * SIZE] != 0);
+//	gl_FragColor = (texture3D(MapTex, p / 255.));
+	return (texture3D(MapTex, p / 128.).a > .0);
 }
 
 
@@ -143,7 +139,11 @@ vec4    getColor(vec3 o, vec3 dir, float d, ivec3 face)
 //    col = mix(col, sand, float(SIZE / 2) / (p.z * p.z));
     return col * ((coef + 3.) / 4.) * vec4(0.8, 0.9, 0.9, 1.);
 */
-	return (vec4(p.xyz, 1.0));
+
+	return (texture3D(MapTex, vec3(p.x / float(SIZE), p.y / float(SIZE), p.z / float(SIZE / 2))).abgr);
+//	return (texture3D(MapTex, p).abgr);
+//	return (vec4(p.xyz, 1.0));
+//	return (vec4(0., 0., 0., 0.));
 }
 
 
@@ -203,9 +203,12 @@ void main(void)
     uDir = cross(dir, rDir) * zoom;
     rDir *= zoom;
     vec3    upLeft = camPos - uDir * (480. / 2.) - rDir * (640. / 2.);
-    
-    rayCast(camPos, uDir, rDir, dir, upLeft);
-    
+
+//    rayCast(camPos, uDir, rDir, dir, upLeft);
+
+	vec2 uv = vec2(gl_FragCoord.x / 640., gl_FragCoord.y / 480.);
+	gl_FragColor = texture3D(MapTex, vec3(uv, .5)).abgr;
+
 //    vec2 uv = gl_FragCoord.xy / iResolution.xy;
 //    gl_FragColor = vec4(uv,0.5+0.5*sin(iGlobalTime),1.0);
 }

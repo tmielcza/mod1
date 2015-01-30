@@ -6,7 +6,7 @@
 #    By: caupetit <marvin@42.fr>                    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2015/01/05 15:46:59 by caupetit          #+#    #+#              #
-#    Updated: 2015/01/29 20:47:04 by caupetit         ###   ########.fr        #
+#    Updated: 2015/01/30 17:37:01 by tmielcza         ###   ########.fr        #
 #                                                                              #
 #******************************************************************************#
 
@@ -15,7 +15,7 @@ SRC =	Display.cpp \
 		Map.cpp \
 		Utils.cpp \
 		main.cpp
-CC = g++ -O3
+CC = g++ -O3 -g
 FLAGS = -Wall -Wextra -Werror
 SDL2 = -F ~/Library/Frameworks -framework SDL2 \
 		-I ~/Library/Frameworks/SDL2.framework/Headers \

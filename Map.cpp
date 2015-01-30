@@ -6,7 +6,7 @@
 //   By: tmielcza <tmielcza@student.42.fr>          +#+  +:+       +#+        //
 //                                                +#+#+#+#+#+   +#+           //
 //   Created: 2015/01/24 15:59:11 by tmielcza          #+#    #+#             //
-//   Updated: 2015/01/30 17:14:32 by caupetit         ###   ########.fr       //
+//   Updated: 2015/01/30 19:18:06 by tmielcza         ###   ########.fr       //
 //                                                                            //
 // ************************************************************************** //
 
@@ -15,18 +15,14 @@
 #include <iostream>
 #include "Map.hpp"
 
-Map::Map(void)
+Map::Map(void) : _vox(CUBE_SIZE / 2, std::vector< std::vector <voxel> >(CUBE_SIZE, std::vector<voxel>(CUBE_SIZE)))
 {
 	this->_pts = NULL;
-	this->_vtype = new voxel::Voxel_Type[CUBE_SIZE / 2 * CUBE_SIZE * CUBE_SIZE];
-	this->_vinfo = new int[CUBE_SIZE / 2 * CUBE_SIZE * CUBE_SIZE];
 }
 
 Map::~Map(void)
 {
 	delete this->_pts;
-	delete this->_vtype;
-	delete this->_vinfo;
 }
 
 void	Map::setPoints(std::list<point>* pts)
@@ -75,7 +71,11 @@ void	Map::setPoints(std::list<point>* pts)
 	}
 }
 
-Map::voxel::voxel(Voxel_Type& type, int& q) : type(type), q(q)
+Map::voxel::voxel(void) : type(VOID), q(0)
+{
+}
+
+Map::voxel::voxel(Voxel_Type type, unsigned char q) : type(type), q(q), z(100), u(25)
 {
 }
 
@@ -208,6 +208,39 @@ void	Map::surroundings::Position(int x, int y, int z, bool block)
 		data |= val;
 }
 
+/*
+bool	Map::surroundings::Face(FacePosition face)
+{
+	FacePosition faces[6] = {BOTTOM, UP, FRONT, BACK, LEFT, RIGHT}; 
+	int	tab[6][2][3] = {
+		{{1, 1, 0}, {-1, -1, -1}},
+		{{1, 1, 0}, {-1, -1, 1}},
+		{{1, 0, 1}, {-1, -1, -1}},
+		{{1, 0, 1}, {-1, 1, -1}},
+		{{0, 1, 1}, {-1, -1, -1}},
+		{{0, 1, 1}, {1, -1, -1}},
+	};
+
+	int theFace;
+	for (theFace = 0; theFace < 6; theFace++)
+	{
+		if (faces[theFace] == face)
+			break ;
+	}
+
+	int incx = tab[face][0][0];
+	int	incy = tab[face][0][1];
+	int	incz = tab[face][0][2];
+
+	bool	ret = false;
+
+	for (int i = 0, x = tab[face][1][0], y = tab[face][1][1], z = tab[face][1][2]; i < 9; i++)
+	{
+		
+	}
+}
+*/
+
 Map::point	Map::point::cross(const point& a, const point& b)
 {
 	Map::point p(a.x * b.z - a.z * b.y,
@@ -234,33 +267,15 @@ void	Map::voxelizeMap(void)
 			pt = interPoint(x, y);
 			for (int l = 0; l < pt.z; l++)
 			{
-				this->setVoxel(x, y, l, voxel::SOIL, l);
+				this->_vox[l][y][x] = voxel(voxel::SOIL, l);
 			}
 		 }
 	 }
 }
 
-Map::voxel	Map::getVoxel(int x, int y, int z) const
+const std::vector< std::vector< std::vector <Map::voxel> > >& Map::voxels(void) const
 {
-	int		pos = x + y * CUBE_SIZE + z * CUBE_SIZE * CUBE_SIZE;
-	return Map::voxel(this->_vtype[pos], this->_vinfo[pos]);
-}
-
-void		Map::setVoxel(int x, int y, int z, Map::voxel::Voxel_Type type, int info)
-{
-	int		pos = x + y * CUBE_SIZE + z * CUBE_SIZE * CUBE_SIZE;
-	this->_vtype[pos] = type;
-	this->_vinfo[pos] = info;
-}
-
-int*	Map::getVTypes(void) const
-{
-	return reinterpret_cast<int*>(this->_vtype);
-}
-
-int*	Map::getVInfos(void) const
-{
-	return this->_vinfo;
+	return this->_vox;
 }
 
 Map::point	Map::interPoint(const float x, const float y) const
@@ -268,7 +283,7 @@ Map::point	Map::interPoint(const float x, const float y) const
 	float	px = x;
 	float	py = y;
 	float	pz = 0;
-
+	
 	float sumVal = 0;
 	float sum = 0;
 	float distance, weight, value;
@@ -294,6 +309,8 @@ void				Map::exchangeWater(voxel& src, voxel& dst, const int q)
 {
 	if (dst.type == voxel::SOIL)
 	{
+//		std::cout << "VIEUX SEXE D'HOMME" << std::endl;
+//		exit(0);
 		return ;
 	}
 	src.q -= q;
@@ -311,7 +328,7 @@ void				Map::drainWoxels(void)
 		{
 			for (int x = 0; x < CUBE_SIZE; x++)
 			{
-				if (this->getVoxel(x, y, z).type == voxel::WATER)
+				if (this->_vox[z][y][x].type == voxel::WATER)
 					drainWoxel(x, y, z);
 			}
 		}
@@ -322,15 +339,14 @@ void				Map::drainWoxel(const unsigned int x, const unsigned int y, const unsign
 {
 	surroundings	surr = woxelSurroundings(x, y, z);
 
-	voxel	vox = this->getVoxel(x, y, z);
+	voxel&	vox = this->_vox[z][y][x];
 	int		count = 0;
 	int		water = 0;
 
-	if (!surr.Position(0, 0, z - 1) && this->getVoxel(x, y, z - 1).q != 255)
+	if (!surr.Position(0, 0, z - 1) && this->_vox[z - 1][y][x].q != 255)
 	{
-		int		q = this->getVoxel(x, y, z - 1).q;
-		voxel	tmp = this->getVoxel(x, y, z - 1);
-		exchangeWater(vox, tmp, vox.q + q > 255 ? 255 - q : vox.q);
+		int		q = this->_vox[z - 1][y][x].q;
+		exchangeWater(vox, this->_vox[z - 1][y][x], vox.q + q > 255 ? 255 - q : vox.q);
 		if (vox.q == 0)
 			return ;
 	}
@@ -340,15 +356,15 @@ void				Map::drainWoxel(const unsigned int x, const unsigned int y, const unsign
 		int x2 = i % 3 - 1;
 		int y2 = i / 3 - 1;
 
-		if (i != 4 && !surr.Position(x2, y2, 0) && vox.q > this->getVoxel(x2 + x, y2 + y, z).q)
+		if (i != 4 && !surr.Position(x2, y2, 0) && vox.q > this->_vox[z][y2 + y][x2 + x].q)
 		{
 			count++;
-			water += this->getVoxel(x2 + x, y2 + y, z).q;
+			water += this->_vox[z][y2 + y][x2 + x].q;
 		}
 	}
 
 	if (!count)
-		return;
+		return; 
 
 	int m = water / count;
 
@@ -361,9 +377,9 @@ void				Map::drainWoxel(const unsigned int x, const unsigned int y, const unsign
 			int x2 = i % 3 - 1;
 			int y2 = i / 3 - 1;
 
-			if (i != 4 && !surr.Position(x2, y2, 0) && vox.q > this->getVoxel(x2 + x, y2 + y, z).q)
+			if (i != 4 && !surr.Position(x2, y2, 0) && vox.q > this->_vox[z][y2 + y][x2 + x].q)
 			{
-				voxel vox2 = this->getVoxel(x2 + x, y2 + y, z);
+				voxel& vox2 = this->_vox[z][y2 + y][x2 + x];
 				exchangeWater(vox, vox2, gift + vox2.q <= 255 ? gift : 255 - vox2.q);
 			}
 		}
@@ -390,7 +406,7 @@ Map::surroundings	Map::woxelSurroundings(const unsigned int x, const unsigned in
 					full = true;
 				else
 				{
-					full = this->getVoxel(x + xi, y + yi, z + zi).type == voxel::SOIL;
+					full = _vox[z + zi][y + yi][x + xi].type == voxel::SOIL;
 				}
 				ret.Position(xi, yi, zi, full);
 			}

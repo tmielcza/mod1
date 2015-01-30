@@ -6,7 +6,7 @@
 //   By: tmielcza <tmielcza@student.42.fr>          +#+  +:+       +#+        //
 //                                                +#+#+#+#+#+   +#+           //
 //   Created: 2015/01/20 16:07:50 by tmielcza          #+#    #+#             //
-//   Updated: 2015/01/30 15:10:42 by caupetit         ###   ########.fr       //
+//   Updated: 2015/01/30 19:43:11 by tmielcza         ###   ########.fr       //
 //                                                                            //
 // ************************************************************************** //
 
@@ -127,7 +127,11 @@ int		main(int ac, char **av)
 	glVertex3f(1.0, -1.0, 0.0);
 	glEnd();
 
-	dis->draw(map.getVTypes(), map.getVInfos());
+//	dis->draw(reinterpret_cast<const void*>(&map.voxels()), 1, 1, 1);
+	int *tab = new int[CUBE_SIZE * CUBE_SIZE * (CUBE_SIZE / 2)];
+	std::fill_n(tab, CUBE_SIZE * CUBE_SIZE * (CUBE_SIZE / 2), 666);
+//	dis->draw(reinterpret_cast<const void*>(&map.voxels()), CUBE_SIZE, CUBE_SIZE, CUBE_SIZE / 2);
+	dis->draw(reinterpret_cast<const void*>(tab), CUBE_SIZE, CUBE_SIZE, CUBE_SIZE / 2);
 	SDL_Delay(15000);
 
 	return (0);

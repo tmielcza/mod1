@@ -6,7 +6,7 @@
 //   By: tmielcza <tmielcza@student.42.fr>          +#+  +:+       +#+        //
 //                                                +#+#+#+#+#+   +#+           //
 //   Created: 2015/01/21 12:44:56 by tmielcza          #+#    #+#             //
-//   Updated: 2015/01/30 15:08:14 by caupetit         ###   ########.fr       //
+//   Updated: 2015/01/30 19:37:19 by tmielcza         ###   ########.fr       //
 //                                                                            //
 // ************************************************************************** //
 
@@ -55,6 +55,21 @@ Display::Display(void) : _w(640), _h(480)
 		{
 			throw (std::exception());
 		}
+
+
+		glEnable(GL_TEXTURE_3D);
+		glGenTextures(1, &this->_mapTex);
+		glBindTexture(GL_TEXTURE_3D, this->_mapTex);
+		glTexImage3D(GL_TEXTURE_3D,
+					 0,
+					 GL_RGBA,
+					 128,
+					 128,
+					 64,
+					 0,
+					 GL_RGBA,
+					 GL_UNSIGNED_BYTE,
+					 NULL);
 
 /*
 		this->_ren = SDL_CreateRenderer(this->_win, -1, 0);
@@ -143,12 +158,28 @@ GLuint		Display::compileShader(const std::string data, const GLenum flag) const
 	return id;
 }
 
-void		Display::draw(const int* vtypes, const int*vinfos)
+void		Display::draw(const void* data, const int x, const int y, const int z)
 {
-	GLuint types = glGetUniformLocation(this->_prog, "vTypes");
-	GLuint infos = glGetUniformLocation(this->_prog, "vInfos");
-	glUniform1iv(types, 128 * 128 * 64, vtypes);
-	glUniform1iv(infos, 128 * 128 * 64, vinfos);
+	GLuint texLoc = glGetUniformLocation(this->_prog, "MapTex");
+	glUniform1i(texLoc, 0);
+
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_3D, this->_mapTex);
+
+	glTexSubImage3D(GL_TEXTURE_3D,
+					0,
+					0,
+					0,
+					0,
+					x,
+					y,
+					z,
+					GL_RGBA,
+					GL_UNSIGNED_BYTE,
+					data);
+
+//	if (glGetError() != GL_NO_ERROR)
+		std::cout << "ERREUR5:" << glGetError() << std::endl;
 	SDL_GL_SwapWindow(this->_win);
 //	SDL_UpdateTexture(this->_tex, NULL, this->_pix, this->_w * sizeof(Uint32));
 //	SDL_RenderClear(this->_ren);

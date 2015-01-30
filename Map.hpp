@@ -6,7 +6,7 @@
 //   By: tmielcza <tmielcza@student.42.fr>          +#+  +:+       +#+        //
 //                                                +#+#+#+#+#+   +#+           //
 //   Created: 2015/01/22 15:07:14 by tmielcza          #+#    #+#             //
-//   Updated: 2015/01/30 15:11:06 by caupetit         ###   ########.fr       //
+//   Updated: 2015/01/30 17:45:57 by tmielcza         ###   ########.fr       //
 //                                                                            //
 // ************************************************************************** //
 
@@ -51,10 +51,13 @@ public:
 	{
 		enum Voxel_Type {VOID = 0, SOIL = 1, WATER = 2};
 
-		voxel(Voxel_Type& type, int& q);
+		voxel(Voxel_Type type, unsigned char q);
+		voxel(void);
 
-		Voxel_Type&		type;
-		int&			q;
+		unsigned char	type;
+		unsigned char	q;
+		unsigned char	z;
+		unsigned char	u;
 	};
 
 	Map(void);
@@ -62,16 +65,16 @@ public:
 
 	void	setPoints(std::list<point>* pts);
 	void	voxelizeMap(void);
+	
+	const std::vector< std::vector< std::vector <voxel> > >& voxels(void) const;
 
 	void	drainWoxel(const unsigned int x, const unsigned int y, const unsigned int z);
 	void	drainWoxels(void);
-	void	setVoxel(int x, int y, int z, voxel::Voxel_Type type, int info);
-	voxel	getVoxel(int x, int y, int z) const;
-	int*	getVTypes(void) const;
-	int*	getVInfos(void) const;
+//	void	pushWater(const unsigned int x, const unsigned int y, const unsigned int z, const unsigned int q);
 
 	const std::list<point>&	Points(void);
 
+	void	PutWater(int x, int y, int z) {_vox[z][y][x] = voxel(voxel::WATER, 255);} // A VIRER
 
 private:
 	struct surroundings
@@ -84,15 +87,15 @@ private:
 
 		bool		Position(int x, int y, int z);
 		void		Position(int x, int y, int z, bool block);
+//		bool		Face(FacePosition face);
 
 		int			data;
 	};
 
 	surroundings	woxelSurroundings(const unsigned int x, const unsigned int y, const unsigned int z) const;
 
-	std::list<point>*	_pts;
-	voxel::Voxel_Type*	_vtype;
-	int*				_vinfo;
+	std::list<point>*			_pts;
+	std::vector< std::vector< std::vector <voxel> > >	_vox;
 
 	Map(const Map& src);
 
