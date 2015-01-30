@@ -6,7 +6,7 @@
 //   By: tmielcza <tmielcza@student.42.fr>          +#+  +:+       +#+        //
 //                                                +#+#+#+#+#+   +#+           //
 //   Created: 2015/01/20 16:07:50 by tmielcza          #+#    #+#             //
-//   Updated: 2015/01/30 19:43:11 by tmielcza         ###   ########.fr       //
+//   Updated: 2015/01/30 21:41:07 by tmielcza         ###   ########.fr       //
 //                                                                            //
 // ************************************************************************** //
 
@@ -22,27 +22,7 @@
 #include "Map.hpp"
 #include "Raycast.hpp"
 
-/*
-point*		getNeighbours(float x, float y)
-{
-	point*	nei = new point[3];
-	point	tmp(x, y, 0);
-
-	for (std::list<point>::const_iterator ite = _list.begin(), end = _list.end(); ite != end; ++ite)
-	{
-		float dst = point::getDst(tmp, *ite);
-		for (int i = 0; i < 3; i++)
-		{
-			if (nei[i].dst == 0 || nei[i].dst > dst)
-			{
-				nei[i] = *ite;
-				nei[i].dst = dst;
-			}
-		}
-	}
-	return (nei);
-}
-*/
+#include <ctime>
 
 std::list<Map::point>*	getMod1File(std::string name)
 {
@@ -97,41 +77,44 @@ int		main(int ac, char **av)
 	map.setPoints(pts);
 	map.voxelizeMap();
 
-//	Raycast		raycast(Map::point(400, 100, 200), *dis, map.voxels());
-
-//	raycast.setZoom(0.3);
-
-/*
-	for (int i = 0; i < 100; i++)
-	{
-		for (int j = 10; j < 12; j++)
-			map.PutWater(i, 1, j);
-	}
-*/
 	dis->initShaderProgram("raycast.frag");
 
 	glClearColor(1,0,0,1);
 	glClear(GL_COLOR_BUFFER_BIT);
 
-    glViewport(0, 0, dis->getW(), dis->getH());
-    glMatrixMode(GL_PROJECTION);
-    glLoadIdentity();
-    glOrtho(0, 1, 0, 1, 0, 1);
-    glMatrixMode(GL_MODELVIEW);
-    glLoadIdentity();
+	glViewport(0, 0, dis->getW(), dis->getH());
+	glMatrixMode(GL_PROJECTION);
+	glLoadIdentity();
+	glOrtho(0, 1, 0, 1, 0, 1);
+	glMatrixMode(GL_MODELVIEW);
+	glLoadIdentity();
 
-	glBegin(GL_QUADS);
-	glVertex3f(-1.0, -1.0, 0.0);
-	glVertex3f(-1.0, 1.0, 0.0);
-	glVertex3f(1.0, 1.0, 0.0); 
-	glVertex3f(1.0, -1.0, 0.0);
-	glEnd();
-
-//	dis->draw(reinterpret_cast<const void*>(&map.voxels()), 1, 1, 1);
 	int *tab = new int[CUBE_SIZE * CUBE_SIZE * (CUBE_SIZE / 2)];
-	std::fill_n(tab, CUBE_SIZE * CUBE_SIZE * (CUBE_SIZE / 2), 666);
-//	dis->draw(reinterpret_cast<const void*>(&map.voxels()), CUBE_SIZE, CUBE_SIZE, CUBE_SIZE / 2);
-	dis->draw(reinterpret_cast<const void*>(tab), CUBE_SIZE, CUBE_SIZE, CUBE_SIZE / 2);
+	const std::vector< std::vector< std::vector <Map::voxel> > >&	voxs = map.voxels();
+	int frames = 0;
+	std::clock_t begin = clock();
+
+	while (1)
+	{
+		for (int i = 20; i < 100; i++)
+			map.PutWater(i, 100, 40);
+		map.drainWoxels();
+
+		for (int i = 0; i < CUBE_SIZE * CUBE_SIZE * (CUBE_SIZE / 2); i++)
+		{
+			tab[i] = *reinterpret_cast<const int*>(&voxs[i / CUBE_SIZE / CUBE_SIZE][i / CUBE_SIZE % CUBE_SIZE][i % CUBE_SIZE % CUBE_SIZE]);
+		}
+		dis->draw(reinterpret_cast<const void*>(tab), CUBE_SIZE, CUBE_SIZE, CUBE_SIZE / 2);
+
+		frames++;
+
+		if (clock() - begin >= CLOCKS_PER_SEC)
+		{
+			std::cout << frames << std::endl;
+			frames = 0;
+			begin = clock();
+		}
+	}
 	SDL_Delay(15000);
 
 	return (0);

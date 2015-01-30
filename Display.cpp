@@ -6,7 +6,7 @@
 //   By: tmielcza <tmielcza@student.42.fr>          +#+  +:+       +#+        //
 //                                                +#+#+#+#+#+   +#+           //
 //   Created: 2015/01/21 12:44:56 by tmielcza          #+#    #+#             //
-//   Updated: 2015/01/30 19:37:19 by tmielcza         ###   ########.fr       //
+//   Updated: 2015/01/30 20:34:45 by tmielcza         ###   ########.fr       //
 //                                                                            //
 // ************************************************************************** //
 
@@ -62,7 +62,7 @@ Display::Display(void) : _w(640), _h(480)
 		glBindTexture(GL_TEXTURE_3D, this->_mapTex);
 		glTexImage3D(GL_TEXTURE_3D,
 					 0,
-					 GL_RGBA,
+					 4,
 					 128,
 					 128,
 					 64,
@@ -70,6 +70,8 @@ Display::Display(void) : _w(640), _h(480)
 					 GL_RGBA,
 					 GL_UNSIGNED_BYTE,
 					 NULL);
+		glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
 /*
 		this->_ren = SDL_CreateRenderer(this->_win, -1, 0);
@@ -160,12 +162,10 @@ GLuint		Display::compileShader(const std::string data, const GLenum flag) const
 
 void		Display::draw(const void* data, const int x, const int y, const int z)
 {
-	GLuint texLoc = glGetUniformLocation(this->_prog, "MapTex");
-	glUniform1i(texLoc, 0);
-
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_3D, this->_mapTex);
 
+	(void)z;
 	glTexSubImage3D(GL_TEXTURE_3D,
 					0,
 					0,
@@ -178,8 +178,16 @@ void		Display::draw(const void* data, const int x, const int y, const int z)
 					GL_UNSIGNED_BYTE,
 					data);
 
-//	if (glGetError() != GL_NO_ERROR)
-		std::cout << "ERREUR5:" << glGetError() << std::endl;
+	GLuint texLoc = glGetUniformLocation(this->_prog, "MapTex");
+	glUniform1i(texLoc, 0);
+
+	glBegin(GL_QUADS);
+	glVertex3f(-1.0, -1.0, 0.0);
+	glVertex3f(-1.0, 1.0, 0.0);
+	glVertex3f(1.0, 1.0, 0.0);
+	glVertex3f(1.0, -1.0, 0.0);
+	glEnd();
+
 	SDL_GL_SwapWindow(this->_win);
 //	SDL_UpdateTexture(this->_tex, NULL, this->_pix, this->_w * sizeof(Uint32));
 //	SDL_RenderClear(this->_ren);
