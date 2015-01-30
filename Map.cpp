@@ -6,7 +6,7 @@
 //   By: tmielcza <tmielcza@student.42.fr>          +#+  +:+       +#+        //
 //                                                +#+#+#+#+#+   +#+           //
 //   Created: 2015/01/24 15:59:11 by tmielcza          #+#    #+#             //
-//   Updated: 2015/01/29 20:46:11 by caupetit         ###   ########.fr       //
+//   Updated: 2015/01/30 17:14:32 by caupetit         ###   ########.fr       //
 //                                                                            //
 // ************************************************************************** //
 
@@ -19,7 +19,7 @@ Map::Map(void)
 {
 	this->_pts = NULL;
 	this->_vtype = new voxel::Voxel_Type[CUBE_SIZE / 2 * CUBE_SIZE * CUBE_SIZE];
-	this->_vinfo = new unsigned char[CUBE_SIZE / 2 * CUBE_SIZE * CUBE_SIZE];
+	this->_vinfo = new int[CUBE_SIZE / 2 * CUBE_SIZE * CUBE_SIZE];
 }
 
 Map::~Map(void)
@@ -75,7 +75,7 @@ void	Map::setPoints(std::list<point>* pts)
 	}
 }
 
-Map::voxel::voxel(Voxel_Type& type, unsigned char& q) : type(type), q(q)
+Map::voxel::voxel(Voxel_Type& type, int& q) : type(type), q(q)
 {
 }
 
@@ -242,15 +242,25 @@ void	Map::voxelizeMap(void)
 
 Map::voxel	Map::getVoxel(int x, int y, int z) const
 {
-	int		pos = x * CUBE_SIZE + y * CUBE_SIZE + z * (CUBE_SIZE / 2);
+	int		pos = x + y * CUBE_SIZE + z * CUBE_SIZE * CUBE_SIZE;
 	return Map::voxel(this->_vtype[pos], this->_vinfo[pos]);
 }
 
-void		Map::setVoxel(int x, int y, int z, Map::voxel::Voxel_Type type, unsigned char info)
+void		Map::setVoxel(int x, int y, int z, Map::voxel::Voxel_Type type, int info)
 {
-	int		pos = x * CUBE_SIZE + y * CUBE_SIZE + z * (CUBE_SIZE / 2);
+	int		pos = x + y * CUBE_SIZE + z * CUBE_SIZE * CUBE_SIZE;
 	this->_vtype[pos] = type;
 	this->_vinfo[pos] = info;
+}
+
+int*	Map::getVTypes(void) const
+{
+	return reinterpret_cast<int*>(this->_vtype);
+}
+
+int*	Map::getVInfos(void) const
+{
+	return this->_vinfo;
 }
 
 Map::point	Map::interPoint(const float x, const float y) const

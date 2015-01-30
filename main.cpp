@@ -6,7 +6,7 @@
 //   By: tmielcza <tmielcza@student.42.fr>          +#+  +:+       +#+        //
 //                                                +#+#+#+#+#+   +#+           //
 //   Created: 2015/01/20 16:07:50 by tmielcza          #+#    #+#             //
-//   Updated: 2015/01/29 20:47:26 by caupetit         ###   ########.fr       //
+//   Updated: 2015/01/30 15:10:42 by caupetit         ###   ########.fr       //
 //                                                                            //
 // ************************************************************************** //
 
@@ -127,7 +127,7 @@ int		main(int ac, char **av)
 	glVertex3f(1.0, -1.0, 0.0);
 	glEnd();
 
-	dis->draw();
+	dis->draw(map.getVTypes(), map.getVInfos());
 	SDL_Delay(15000);
 
 	return (0);

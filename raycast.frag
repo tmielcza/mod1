@@ -1,5 +1,8 @@
 #define SIZE 128
 
+uniform int vTypes[SIZE * SIZE * (SIZE / 2)];
+uniform int vInfos[SIZE * SIZE * (SIZE / 2)];
+
 vec3    getFirstX(vec3 o, vec3 dir)
 {
     vec3    pt;
@@ -73,45 +76,15 @@ bool    rayPossible(vec3 o, vec3 dir)
            );
 }
 
-float    weight(float d)
+bool    getPoint(vec3 p)
 {
-    return (d == 0. ? 1. : 1. / pow(d, 2.));
+	int tab[2020];
+	tab[2000] = 1;
+//	return (p.z == 0.);
+	return (tab[20000] == 1);
+//    return (vTypes[int(p.x) + int(p.y) * SIZE + int(p.z) * SIZE * SIZE] != 0);
 }
 
-vec3    getPoint(vec2 p)
-{
-    const int        size = 10;
-    vec3    pts[size];
-    
-    pts[0] = vec3(64., 64., 64.);
-    pts[1] = vec3(30., 30., 40.);
-       pts[2] = vec3(20., 20., 20.);
-      pts[3] = vec3(100., 20., 10.);
-    pts[4] = vec3(64., 100., 40.);
-    pts[5] = vec3(64., 10., 40.);
-    pts[6] = vec3(64., 20., 40.);
-    pts[7] = vec3(64., 30., 40.);
-    pts[8] = vec3(64., 40., 40.);
-    pts[9] = vec3(40., 50., 30.);
-    
-    float sumVal = 0.;
-    float sum = 0.;
-    float dst, w, v;
-
-    for (int i = 0; i < size; i++)
-    {
-        dst = length(pts[i].xy - p.xy);
-        w = weight(dst);
-        v = w * pts[i].z;
-        sumVal += v;
-        sum += w;
-    }
-
-    sum += weight(min(p.x, float(SIZE) - p.x));
-    sum += weight(min(p.y, float(SIZE) - p.y));
-
-    return (vec3(p.xy, floor(sumVal / sum)));
-}
 
 float    rayCastSide(vec3 o, vec3 dir, vec3 p, const int maxDst, ivec3 cube, ivec3 face)
 {
@@ -120,12 +93,12 @@ float    rayCastSide(vec3 o, vec3 dir, vec3 p, const int maxDst, ivec3 cube, ive
     //maxDst not used...
     for (int i = 0; i < SIZE; i++)
     {
-        vec2    pt;
+        vec3    pt;
         
-           if (face.x == 1)
-            pt = vec2(fract(p.x) > .5 ? ceil(p.x) : floor(p.x), floor(p.y));
+		if (face.x == 1)
+            pt = vec3(fract(p.x) > .5 ? ceil(p.x) : floor(p.x), floor(p.y), ceil(p.z));
         else if (face.y == 1)
-            pt = vec2(floor(p.x), fract(p.y) > .5 ? ceil(p.y) : floor(p.y));
+            pt = vec3(floor(p.x), fract(p.y) > .5 ? ceil(p.y) : floor(p.y), ceil(p.z));
         else
         {
 //            pt = vec2(fract(p.x) > .5 ? ceil(p.x) : floor(p.x), fract(p.y) > .5 ? ceil(p.y) : floor(p.y));
@@ -137,7 +110,7 @@ float    rayCastSide(vec3 o, vec3 dir, vec3 p, const int maxDst, ivec3 cube, ive
         if (int(p.x) >= 0 && int(p.x) < cube.x
             && int(p.y) >= 0 && int(p.y) < cube.y
             && int(p.z) >= 0 && int(p.z) < cube.z
-            && ceil(p.z) <= getPoint(pt).z)
+            && getPoint(pt))
         {
             return (length(vec3(p - o)));
         }
@@ -151,24 +124,29 @@ vec4    getColor(vec3 o, vec3 dir, float d, ivec3 face)
 {
     vec3 p = vec3(o + dir * (d));
 
+/*    
     if (face.x == 1)
         p.x = fract(p.x) > .5 ? ceil(p.x) : floor(p.x);
     else if (face.y == 1)
         p.y = fract(p.y) > .5 ? ceil(p.y) : floor(p.y);
-    
+
     vec4 sand = vec4(.78, .82, .45, 1.);
-    
+
     ivec3 pt = ivec3(p);
     vec3 norm = normalize(cross(getPoint(vec2(float(pt.x) - 1., float(pt.y))) - getPoint(vec2(float(pt.x) + 1., float(pt.y))),
                         getPoint(vec2(float(pt.x), float(pt.y) - 1.)) - getPoint(vec2(float(pt.x), float(pt.y) + 1.))));
-    float coef = dot(normalize(vec3(1., 1., -1.)), norm);
+	float coef = dot(normalize(vec3(1., 1., -1.)), norm);
     float slopeCoef = dot(norm, vec3(0., 0., 1.));
     slopeCoef *= slopeCoef * 1.2;
     slopeCoef -= 0.2;
     vec4 col = mix(vec4(.3, .7, .2, 1.), vec4(.65, .45, .2, 1.), 1. - slopeCoef);
 //    col = mix(col, sand, float(SIZE / 2) / (p.z * p.z));
     return col * ((coef + 3.) / 4.) * vec4(0.8, 0.9, 0.9, 1.);
+*/
+	return (vec4(p.xyz, 1.0));
 }
+
+
 
 void    rayCast(vec3 camPos, vec3 uDir, vec3 rDir, vec3 dir, vec3 upLeft)
 {

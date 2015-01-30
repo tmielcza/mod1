@@ -6,7 +6,7 @@
 //   By: tmielcza <tmielcza@student.42.fr>          +#+  +:+       +#+        //
 //                                                +#+#+#+#+#+   +#+           //
 //   Created: 2015/01/21 12:37:22 by tmielcza          #+#    #+#             //
-//   Updated: 2015/01/29 16:50:03 by tmielcza         ###   ########.fr       //
+//   Updated: 2015/01/30 15:07:59 by caupetit         ###   ########.fr       //
 //                                                                            //
 // ************************************************************************** //
 
@@ -24,7 +24,7 @@ public:
 	Display(const Display& src);
 
 //	void		addPixel(unsigned int x, unsigned int y, Uint32 col);
-	void		draw(void);
+	void			draw(const int* vtypes, const int*vinfos);
 
 	unsigned int	getH(void) const;
 	unsigned int	getW(void) const;

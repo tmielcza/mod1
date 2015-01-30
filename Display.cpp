@@ -6,7 +6,7 @@
 //   By: tmielcza <tmielcza@student.42.fr>          +#+  +:+       +#+        //
 //                                                +#+#+#+#+#+   +#+           //
 //   Created: 2015/01/21 12:44:56 by tmielcza          #+#    #+#             //
-//   Updated: 2015/01/29 17:23:14 by tmielcza         ###   ########.fr       //
+//   Updated: 2015/01/30 15:08:14 by caupetit         ###   ########.fr       //
 //                                                                            //
 // ************************************************************************** //
 
@@ -143,8 +143,12 @@ GLuint		Display::compileShader(const std::string data, const GLenum flag) const
 	return id;
 }
 
-void		Display::draw(void)
+void		Display::draw(const int* vtypes, const int*vinfos)
 {
+	GLuint types = glGetUniformLocation(this->_prog, "vTypes");
+	GLuint infos = glGetUniformLocation(this->_prog, "vInfos");
+	glUniform1iv(types, 128 * 128 * 64, vtypes);
+	glUniform1iv(infos, 128 * 128 * 64, vinfos);
 	SDL_GL_SwapWindow(this->_win);
 //	SDL_UpdateTexture(this->_tex, NULL, this->_pix, this->_w * sizeof(Uint32));
 //	SDL_RenderClear(this->_ren);
