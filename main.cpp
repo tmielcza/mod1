@@ -6,7 +6,7 @@
 //   By: tmielcza <tmielcza@student.42.fr>          +#+  +:+       +#+        //
 //                                                +#+#+#+#+#+   +#+           //
 //   Created: 2015/01/20 16:07:50 by tmielcza          #+#    #+#             //
-//   Updated: 2015/01/31 17:27:37 by tmielcza         ###   ########.fr       //
+//   Updated: 2015/01/31 17:36:37 by tmielcza         ###   ########.fr       //
 //                                                                            //
 // ************************************************************************** //
 
@@ -112,7 +112,7 @@ int		main(int ac, char **av)
 			break;
 		}
 
-		for (int i = 20; i < 100; i++)
+		for (int i = 20; i < 30; i++)
 			map.PutWater(i, 100, 40);
 		map.drainWoxels();
 
