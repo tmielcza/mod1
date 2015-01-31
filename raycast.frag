@@ -1,6 +1,7 @@
 #define SIZE 128
 
 uniform sampler3D MapTex;
+uniform sampler2D HTex;
 
 vec3    getFirstX(vec3 o, vec3 dir)
 {
@@ -75,74 +76,82 @@ bool    rayPossible(vec3 o, vec3 dir)
            );
 }
 
-bool    getPoint(vec3 p)
+int		getPoint(vec3 p)
 {
 	// FIND ANOTHER METHOD FOR Z CLIPPING
-	return (texture3D(MapTex, vec3(p.x / float(SIZE), p.y / float(SIZE), p.z / float(SIZE / 2) - 0.01)).r > .0);
+	return int(texture3D(MapTex, vec3(p.x / float(SIZE), p.y / float(SIZE), p.z / float(SIZE / 2 ))).r * 255.);
 }
 
-
-float    rayCastSide(vec3 o, vec3 dir, vec3 p, const int maxDst, ivec3 cube, ivec3 face)
+float	rayCastSide(vec3 o, vec3 dir, vec3 p, const int maxDst, ivec3 cube, ivec3 face)
 {
-    vec3    hit;
+	vec3	hit;
 
     //maxDst not used...
-    for (int i = 0; i < SIZE; i++)
-    {
-        vec3    pt;
-        
+	for (int i = 0; i < SIZE; i++)
+	{
+		vec3	pt;
+
 		if (face.x == 1)
-            pt = vec3(fract(p.x) > .5 ? ceil(p.x) : floor(p.x), floor(p.y), ceil(p.z));
-        else if (face.y == 1)
-            pt = vec3(floor(p.x), fract(p.y) > .5 ? ceil(p.y) : floor(p.y), ceil(p.z));
-        else
-        {
+			pt = vec3(fract(p.x) > .5 ? ceil(p.x) : floor(p.x), floor(p.y), ceil(p.z));
+		else if (face.y == 1)
+			pt = vec3(floor(p.x), fract(p.y) > .5 ? ceil(p.y) : floor(p.y), ceil(p.z));
+		else
+		{
 //            pt = vec2(fract(p.x) > .5 ? ceil(p.x) : floor(p.x), fract(p.y) > .5 ? ceil(p.y) : floor(p.y));
 //            pt = vec2(floor(p.x), fract(p.y) > .5 ? ceil(p.y) : floor(p.y));
 
 //            p.z = fract(p.z) > .5 ? ceil(p.z) : floor(p.z);
-        }
+		}
 //           pt = vec2( floor(p.x), dir.y > 0. ? floor(p.y) : floor(p.y) - 1.);
-        if (int(p.x) >= 0 && int(p.x) < cube.x
-            && int(p.y) >= 0 && int(p.y) < cube.y
-            && int(p.z) >= 0 && int(p.z) < cube.z
-            && getPoint(pt))
-        {
-            return (length(vec3(p - o)));
-        }
-        p += dir;
-    }
-    
-    return 0.;
+		if (int(p.x) >= 0 && int(p.x) < cube.x
+			&& int(p.y) >= 0 && int(p.y) < cube.y
+			&& int(p.z) >= 0 && int(p.z) < cube.z
+			&& getPoint(pt) != 0)
+		{
+			return (length(vec3(p - o)));
+		}
+		p += dir;
+	}
+
+	return 0.;
 }
 
-vec4    getColor(vec3 o, vec3 dir, float d, ivec3 face)
+vec3	getPointVec2(vec2 p)
 {
-    vec3 p = vec3(o + dir * (d));
+	return (vec3(p, texture2D(HTex, p / float(SIZE)).r * 255.));
+}
 
-/*    
-    if (face.x == 1)
-        p.x = fract(p.x) > .5 ? ceil(p.x) : floor(p.x);
-    else if (face.y == 1)
-        p.y = fract(p.y) > .5 ? ceil(p.y) : floor(p.y);
-
-    vec4 sand = vec4(.78, .82, .45, 1.);
-
-    ivec3 pt = ivec3(p);
-    vec3 norm = normalize(cross(getPoint(vec2(float(pt.x) - 1., float(pt.y))) - getPoint(vec2(float(pt.x) + 1., float(pt.y))),
-                        getPoint(vec2(float(pt.x), float(pt.y) - 1.)) - getPoint(vec2(float(pt.x), float(pt.y) + 1.))));
+vec4	getGroundColor(vec3 p)
+{
+//    vec4 sand = vec4(.78, .82, .45, 1.);
+    vec3 norm = normalize(cross(getPointVec2(vec2(p.x - 1., p.y)) - getPointVec2(vec2(p.x + 1., p.y)),
+                        getPointVec2(vec2(p.x, p.y - 1.)) - getPointVec2(vec2(p.x, p.y + 1.))));
 	float coef = dot(normalize(vec3(1., 1., -1.)), norm);
     float slopeCoef = dot(norm, vec3(0., 0., 1.));
     slopeCoef *= slopeCoef * 1.2;
     slopeCoef -= 0.2;
     vec4 col = mix(vec4(.3, .7, .2, 1.), vec4(.65, .45, .2, 1.), 1. - slopeCoef);
+	col * ((coef + 3.) / 4.) * vec4(0.8, 0.9, 0.9, 1.);
 //    col = mix(col, sand, float(SIZE / 2) / (p.z * p.z));
-    return col * ((coef + 3.) / 4.) * vec4(0.8, 0.9, 0.9, 1.);
-*/
+	return (col);
+}
 
-//	return (texture3D(MapTex, vec3(p.x / float(SIZE), p.y / float(SIZE), p.z / float(SIZE / 2))).abgr);
-//	return (texture3D(MapTex, p).abgr);
-	return (vec4(p.xyz / 128., 1.0));
+vec4	getColor(vec3 o, vec3 dir, float d, ivec3 face)
+{
+	vec3 p = vec3(o + dir * (d));
+	vec4 col;
+
+	if (face.x == 1)
+		p.x = fract(p.x) > .5 ? ceil(p.x) : floor(p.x);
+	else if (face.y == 1)
+		p.y = fract(p.y) > .5 ? ceil(p.y) : floor(p.y);
+
+	if (getPoint(p) == 1)
+		col = getGroundColor(p);
+	else if (getPoint(p) == 2)
+		col = vec4 (0., 0.2, 0.9, 1.);
+
+    return col;
 }
 
 

@@ -6,7 +6,7 @@
 //   By: tmielcza <tmielcza@student.42.fr>          +#+  +:+       +#+        //
 //                                                +#+#+#+#+#+   +#+           //
 //   Created: 2015/01/22 15:07:14 by tmielcza          #+#    #+#             //
-//   Updated: 2015/01/30 20:53:11 by tmielcza         ###   ########.fr       //
+//   Updated: 2015/01/31 13:06:58 by tmielcza         ###   ########.fr       //
 //                                                                            //
 // ************************************************************************** //
 
@@ -67,6 +67,7 @@ public:
 	void	voxelizeMap(void);
 	
 	const std::vector< std::vector< std::vector <voxel> > >& voxels(void) const;
+	const char*			heights(void) const;
 
 	void	drainWoxel(const unsigned int x, const unsigned int y, const unsigned int z);
 	void	drainWoxels(void);
@@ -96,6 +97,7 @@ private:
 
 	std::list<point>*			_pts;
 	std::vector< std::vector< std::vector <voxel> > >	_vox;
+	char*						_hMap;
 
 	Map(const Map& src);
 

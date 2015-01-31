@@ -6,7 +6,7 @@
 //   By: tmielcza <tmielcza@student.42.fr>          +#+  +:+       +#+        //
 //                                                +#+#+#+#+#+   +#+           //
 //   Created: 2015/01/24 15:59:11 by tmielcza          #+#    #+#             //
-//   Updated: 2015/01/30 19:18:06 by tmielcza         ###   ########.fr       //
+//   Updated: 2015/01/31 13:33:58 by tmielcza         ###   ########.fr       //
 //                                                                            //
 // ************************************************************************** //
 
@@ -18,6 +18,7 @@
 Map::Map(void) : _vox(CUBE_SIZE / 2, std::vector< std::vector <voxel> >(CUBE_SIZE, std::vector<voxel>(CUBE_SIZE)))
 {
 	this->_pts = NULL;
+	this->_hMap = new char[CUBE_SIZE * CUBE_SIZE]();
 }
 
 Map::~Map(void)
@@ -268,6 +269,7 @@ void	Map::voxelizeMap(void)
 			for (int l = 0; l < pt.z; l++)
 			{
 				this->_vox[l][y][x] = voxel(voxel::SOIL, l);
+				this->_hMap[y + x * CUBE_SIZE] = pt.z;
 			}
 		 }
 	 }
@@ -276,6 +278,11 @@ void	Map::voxelizeMap(void)
 const std::vector< std::vector< std::vector <Map::voxel> > >& Map::voxels(void) const
 {
 	return this->_vox;
+}
+
+const char*			Map::heights(void) const
+{
+	return this->_hMap;
 }
 
 Map::point	Map::interPoint(const float x, const float y) const

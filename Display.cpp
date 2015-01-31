@@ -6,7 +6,7 @@
 //   By: tmielcza <tmielcza@student.42.fr>          +#+  +:+       +#+        //
 //                                                +#+#+#+#+#+   +#+           //
 //   Created: 2015/01/21 12:44:56 by tmielcza          #+#    #+#             //
-//   Updated: 2015/01/30 20:34:45 by tmielcza         ###   ########.fr       //
+//   Updated: 2015/01/31 13:28:15 by tmielcza         ###   ########.fr       //
 //                                                                            //
 // ************************************************************************** //
 
@@ -56,8 +56,9 @@ Display::Display(void) : _w(640), _h(480)
 			throw (std::exception());
 		}
 
-
 		glEnable(GL_TEXTURE_3D);
+		glEnable(GL_TEXTURE_2D);
+
 		glGenTextures(1, &this->_mapTex);
 		glBindTexture(GL_TEXTURE_3D, this->_mapTex);
 		glTexImage3D(GL_TEXTURE_3D,
@@ -70,24 +71,27 @@ Display::Display(void) : _w(640), _h(480)
 					 GL_RGBA,
 					 GL_UNSIGNED_BYTE,
 					 NULL);
-		glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-		glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+		glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+		glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+		glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 
-/*
-		this->_ren = SDL_CreateRenderer(this->_win, -1, 0);
-		if (this->_ren == NULL)
-		{
-			throw (std::exception());
-		}
+		glGenTextures(1, &this->_hTex);
+		glBindTexture(GL_TEXTURE_2D, this->_hTex);
+		glTexImage2D(GL_TEXTURE_2D,
+					 0,
+					 4,
+					 128,
+					 128,
+					 0,
+					 GL_RGBA,
+					 GL_UNSIGNED_BYTE,
+					 NULL);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 
-		this->_tex = SDL_CreateTexture(this->_ren,
-									   SDL_PIXELFORMAT_ARGB8888,
-									   SDL_TEXTUREACCESS_STATIC,
-									   this->_w,
-									   this->_h);
-
-		this->_pix = new Uint32[this->_w * this->_h];
-*/
 		this->_prog = glCreateProgram();
 
 	}
@@ -100,9 +104,6 @@ Display::Display(void) : _w(640), _h(480)
 
 Display::~Display(void)
 {
-//	delete [] this->_pix;
-//	SDL_DestroyTexture(this->_tex);
-//	SDL_DestroyRenderer(this->_ren);
 	SDL_DestroyWindow(this->_win);	
 	SDL_GL_DeleteContext(this->_glc);
 	SDL_Quit();
@@ -158,6 +159,32 @@ GLuint		Display::compileShader(const std::string data, const GLenum flag) const
 		throw (std::exception());
 	}
 	return id;
+}
+
+void		Display::setHeights(const char* hs, const int x, const int y)
+{
+	int*	tmp = new int[x * y];
+
+	for (int i = 0; i < x * y; i++)
+	{
+		tmp[i] = hs[i];
+	}
+
+	glActiveTexture(GL_TEXTURE1);
+	glBindTexture(GL_TEXTURE_2D, this->_hTex);
+
+	glTexSubImage2D(GL_TEXTURE_2D,
+					0,
+					0,
+					0,
+					x,
+					y,
+					GL_RGBA,
+					GL_UNSIGNED_BYTE,
+					tmp);
+
+	GLuint texLoc = glGetUniformLocation(this->_prog, "HTex");
+	glUniform1i(texLoc, 1);
 }
 
 void		Display::draw(const void* data, const int x, const int y, const int z)

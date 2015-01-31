@@ -6,7 +6,7 @@
 //   By: tmielcza <tmielcza@student.42.fr>          +#+  +:+       +#+        //
 //                                                +#+#+#+#+#+   +#+           //
 //   Created: 2015/01/20 16:07:50 by tmielcza          #+#    #+#             //
-//   Updated: 2015/01/30 21:41:07 by tmielcza         ###   ########.fr       //
+//   Updated: 2015/01/31 14:25:40 by tmielcza         ###   ########.fr       //
 //                                                                            //
 // ************************************************************************** //
 
@@ -51,6 +51,8 @@ std::list<Map::point>*	getMod1File(std::string name)
 	return (pts);
 }
 
+const double g_Pi = 3.14159265358979323846;
+
 int		main(int ac, char **av)
 {
 	if (ac != 2)
@@ -94,8 +96,23 @@ int		main(int ac, char **av)
 	int frames = 0;
 	std::clock_t begin = clock();
 
+	dis->setHeights(map.heights(), CUBE_SIZE, CUBE_SIZE);
+
 	while (1)
 	{
+		SDL_Event		event;
+		SDL_PollEvent(&event);
+		switch(event.type)
+		{
+		case SDL_MOUSEMOTION:
+			if (event.motion.state & SDL_BUTTON_LMASK)
+			{
+				std::cout << "BUTTON PRESSED" << std::endl;
+				std::cout << "Mouse motion: " << event.motion.x << " " << event.motion.y << std::endl;
+			}
+			break;
+		}
+
 		for (int i = 20; i < 100; i++)
 			map.PutWater(i, 100, 40);
 		map.drainWoxels();
