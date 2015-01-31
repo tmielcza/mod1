@@ -82,7 +82,8 @@ int		getPoint(vec3 p)
 	return int(texture3D(MapTex, vec3(p.x / float(SIZE), p.y / float(SIZE), p.z / float(SIZE / 2))).r * 255.);
 }
 
-vec3 dst;
+vec3 dstx;
+vec3 dsty;
 
 float	rayCastSide(vec3 o, vec3 dir, vec3 p, const int maxDst, ivec3 cube, ivec3 face)
 {
@@ -110,7 +111,10 @@ float	rayCastSide(vec3 o, vec3 dir, vec3 p, const int maxDst, ivec3 cube, ivec3 
 			&& int(p.z) >= 0 && int(p.z) < cube.z
 			&& getPoint(pt) != 0)
 		{
-			dst = pt;
+			if (face.x == 1)
+				dstx = pt;
+			if (face.y == 2)
+				dsty = pt;
 			return (length(vec3(p - o)));
 		}
 		p += dir;
@@ -148,19 +152,14 @@ vec4	getGroundColor(vec3 p)
 	return (col * ((coef + 3.) / 4.) * vec4(0.8, 0.9, 0.9, 1.));
 }
 
-vec4	getColor(vec3 o, vec3 dir, float d, ivec3 fac)
+vec4	getColor(vec3 o, vec3 dir, float d, ivec3 face)
 {
 	vec3 p = vec3(o + dir * (d));
 	vec4 col;
 
-//	if (face.x == 1)
-//		p.x = fract(p.x) > .5 ? ceil(p.x) : floor(p.x);
-//	else if (face.y == 1)
-//		p.y = fract(p.y) > .5 ? ceil(p.y) : floor(p.y);
-
-	if (getPoint(dst) == 1)
-		col = getGroundColor(dst);
-	else if (getPoint(dst) == 2)
+	if (getPoint(face.x == 1 ? dstx : dsty) == 1)
+		col = getGroundColor(face.x == 1 ? dstx : dsty);
+	else if (getPoint(face.x == 1 ? dstx : dsty) == 2)
 		col = vec4 (0., 0.2, 0.9, 1.);
 
     return col;
@@ -168,10 +167,10 @@ vec4	getColor(vec3 o, vec3 dir, float d, ivec3 fac)
 
 void    rayCast(vec3 camPos, vec3 uDir, vec3 rDir, vec3 dir, vec3 upLeft)
 {
-	vec3    o = upLeft + uDir * gl_FragCoord.y + rDir * gl_FragCoord.x;
-	float    d = 0.;
-	float    tmp;
-	ivec3  face;
+	vec3	o = upLeft + uDir * gl_FragCoord.y + rDir * gl_FragCoord.x;
+	float	d = 0.;
+	float	tmp;
+	ivec3	face;
 
 	if (!rayPossible(o, dir))
 	{
@@ -184,14 +183,14 @@ void    rayCast(vec3 camPos, vec3 uDir, vec3 rDir, vec3 dir, vec3 upLeft)
     tmp = rayCastSide(o, dir * abs(1. / dir.x), getFirstX(o, dir), SIZE, cube, ivec3(1, 0, 0));
     if (d == 0. || (tmp < d && tmp != 0.))
     {
-        d = tmp;
-        face = ivec3(1, 0, 0);
+		d = tmp;
+		face = ivec3(1, 0, 0);
     }
 	tmp = rayCastSide(o, dir * abs(1. / dir.y), getFirstY(o, dir), SIZE, cube, ivec3(0, 1, 0));
 	if (d == 0. || (tmp < d && tmp != 0.))
     {
-        d = tmp;
-        face = ivec3 (0, 1, 0);
+		d = tmp;
+		face = ivec3 (0, 1, 0);
     }
 //    tmp = rayCastSide(o, dir * abs(1. / dir.z), getFirstZ(o, dir), SIZE / 2, cube, ivec3(0, 0, 1));
 //    if (d == 0. || (tmp < d && tmp != 0.))
@@ -199,7 +198,7 @@ void    rayCast(vec3 camPos, vec3 uDir, vec3 rDir, vec3 dir, vec3 upLeft)
 //        d = tmp;
 //        face = ivec3 (0, 0, 1);
 //    }
-    
+
     if (d != 0.)
     {
         gl_FragColor = getColor(o, dir, d, face);
@@ -210,7 +209,7 @@ void    rayCast(vec3 camPos, vec3 uDir, vec3 rDir, vec3 dir, vec3 upLeft)
 
 void main(void)
 {
-	vec3 camPos = vec3(200., 300., 100.);
+	vec3 camPos = vec3(200., 100., 100.);
 	vec3 camDir = vec3(SIZE / 2, SIZE / 2, SIZE / 4);
 	float zoom = 0.3;
 	vec3    uDir = vec3(0., 0., 1.);
