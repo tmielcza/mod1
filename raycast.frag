@@ -2,6 +2,8 @@
 
 uniform sampler3D MapTex;
 uniform sampler2D HTex;
+uniform vec3 CamPos;
+uniform vec3 CamDir;
 
 vec3    getFirstX(vec3 o, vec3 dir)
 {
@@ -200,15 +202,13 @@ void    rayCast(vec3 camPos, vec3 uDir, vec3 rDir, vec3 dir, vec3 upLeft)
 
 void main(void)
 {
-	vec3 camPos = vec3(300., 300., 100.);
-	vec3 camDir = vec3(SIZE / 2, SIZE / 2, 0);
 	float zoom = 0.4;
 	vec3    uDir = vec3(0., 0., 1.);
-	vec3    dir = normalize(camDir - camPos);
+	vec3    dir = normalize(CamDir - CamPos);
 	vec3    rDir = cross(uDir, dir);
 	uDir = cross(dir, rDir) * zoom;
 	rDir *= zoom;
-	vec3    upLeft = camPos - uDir * (480. / 2.) - rDir * (640. / 2.);
+	vec3    upLeft = CamPos - uDir * (480. / 2.) - rDir * (640. / 2.);
 
-	rayCast(camPos, uDir, rDir, dir, upLeft);
+	rayCast(CamPos, uDir, rDir, dir, upLeft);
 }

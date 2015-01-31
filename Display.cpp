@@ -6,7 +6,7 @@
 //   By: tmielcza <tmielcza@student.42.fr>          +#+  +:+       +#+        //
 //                                                +#+#+#+#+#+   +#+           //
 //   Created: 2015/01/21 12:44:56 by tmielcza          #+#    #+#             //
-//   Updated: 2015/01/31 13:28:15 by tmielcza         ###   ########.fr       //
+//   Updated: 2015/01/31 17:30:36 by tmielcza         ###   ########.fr       //
 //                                                                            //
 // ************************************************************************** //
 
@@ -15,6 +15,7 @@
 #include "Display.hpp"
 #include <OpenGL/gl.h>
 #include "Utils.hpp"
+#include "Map.hpp"
 
 unsigned int	Display::getH(void) const
 {
@@ -93,6 +94,8 @@ Display::Display(void) : _w(640), _h(480)
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 
 		this->_prog = glCreateProgram();
+
+		this->_camDir = Map::point(CUBE_SIZE / 2, CUBE_SIZE / 2, CUBE_SIZE / 4);
 
 	}
 	catch (std::exception& e)
@@ -220,4 +223,31 @@ void		Display::draw(const void* data, const int x, const int y, const int z)
 //	SDL_RenderClear(this->_ren);
 //	SDL_RenderCopy(this->_ren, this->_tex, NULL, NULL);
 //	SDL_RenderPresent(this->_ren);
+}
+
+void		Display::setCamRotation(int x, int y)
+{
+	this->_roth = x;
+	this->_rotv = y;
+}
+
+const double g_Pi = 3.14159265358979323846;
+
+void		Display::rotateCam()
+{
+	float Rotv = this->_rotv / 180. * g_Pi;
+	float Roth = this->_roth / 180. * g_Pi;
+	const float d = 300.;
+	Map::point campos;
+
+	campos.x = d * sin(Rotv) * cos(Roth);
+	campos.y = d * sin(Rotv) * sin(Roth);
+	campos.z = d * cos(Rotv);
+
+	campos = campos + this->_camDir;
+
+	GLuint camPosLoc = glGetUniformLocation(this->_prog, "CamPos");
+	glUniform3f(camPosLoc, campos.x, campos.y, campos.z);
+	GLuint camDirLoc = glGetUniformLocation(this->_prog, "CamDir");
+	glUniform3f(camDirLoc, this->_camDir.x, this->_camDir.y, this->_camDir.z);
 }

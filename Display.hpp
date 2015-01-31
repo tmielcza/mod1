@@ -6,7 +6,7 @@
 //   By: tmielcza <tmielcza@student.42.fr>          +#+  +:+       +#+        //
 //                                                +#+#+#+#+#+   +#+           //
 //   Created: 2015/01/21 12:37:22 by tmielcza          #+#    #+#             //
-//   Updated: 2015/01/31 13:14:13 by tmielcza         ###   ########.fr       //
+//   Updated: 2015/01/31 17:29:53 by tmielcza         ###   ########.fr       //
 //                                                                            //
 // ************************************************************************** //
 
@@ -15,6 +15,7 @@
 
 # include <SDL.h>
 # include <OpenGL/gl.h>
+# include "Map.hpp"
 
 class Display
 {
@@ -26,6 +27,8 @@ public:
 //	void		addPixel(unsigned int x, unsigned int y, Uint32 col);
 	void			draw(const void* data, const int x, const int y, const int z);
 	void			setHeights(const char* hs, const int x, const int y);
+	void			rotateCam(void);
+	void			setCamRotation(int x, int y);
 
 	unsigned int	getH(void) const;
 	unsigned int	getW(void) const;
@@ -46,6 +49,9 @@ private:
 	GLuint			_frag;
 	GLuint			_mapTex;
 	GLuint			_hTex;
+	Map::point		_camDir;
+	float			_rotv;
+	float			_roth;
 
 	GLuint			compileShader(const std::string name, const GLenum flag) const;
 
