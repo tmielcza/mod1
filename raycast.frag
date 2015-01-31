@@ -2,6 +2,8 @@
 
 uniform sampler3D MapTex;
 uniform sampler2D HTex;
+uniform vec3 CamPos;
+uniform vec3 CamDir;
 
 vec3    getFirstX(vec3 o, vec3 dir)
 {
@@ -46,7 +48,7 @@ vec3    getFirstZ(vec3 o, vec3 dir)
     float    diff;
     float    ratio;
 
-    pt.z = dir.z < 0. ? float(SIZE / 2 - 2) : 0.;
+    pt.z = dir.z < 0. ? float(SIZE / 2) - 2. : 0.;
     diff = pt.z - o.z;
     if (diff != 0.)
     {
@@ -78,12 +80,12 @@ bool    rayPossible(vec3 o, vec3 dir)
 
 int		getPoint(vec3 p)
 {
-	// FIND ANOTHER METHOD FOR Z CLIPPING
 	return int(texture3D(MapTex, vec3(p.x / float(SIZE), p.y / float(SIZE), p.z / float(SIZE / 2))).r * 255.);
 }
 
 vec3 dstx;
 vec3 dsty;
+vec3 dstz;
 
 float	rayCastSide(vec3 o, vec3 dir, vec3 p, const int maxDst, ivec3 cube, ivec3 face)
 {
@@ -100,12 +102,13 @@ float	rayCastSide(vec3 o, vec3 dir, vec3 p, const int maxDst, ivec3 cube, ivec3 
 			pt = vec3(floor(p.x), fract(p.y) > .5 ? ceil(p.y) : floor(p.y), floor(p.z));
 		else
 		{
-//            pt = vec2(fract(p.x) > .5 ? ceil(p.x) : floor(p.x), fract(p.y) > .5 ? ceil(p.y) : floor(p.y));
+//			pt = vec3(floor(p.x), floor(p.y), ceil(p.z));
+//			if (dir.x < 0)
+			pt = vec3(floor(p.x), floor(p.y), fract(p.z) > .5 ? ceil(p.z) : floor(p.z));
+//			pt = vec3(fract(p.x) > .5 ? ceil(p.x) : floor(p.x), fract(p.y) > .5 ? ceil(p.y) : floor(p.y), fract(p.z) > .5 ? floor(p.z) : (p.z));
 //            pt = vec2(floor(p.x), fract(p.y) > .5 ? ceil(p.y) : floor(p.y));
-
 //            p.z = fract(p.z) > .5 ? ceil(p.z) : floor(p.z);
 		}
-//           pt = vec2( floor(p.x), dir.y > 0. ? floor(p.y) : floor(p.y) - 1.);
 		if (int(p.x) >= 0 && int(p.x) < cube.x
 			&& int(p.y) >= 0 && int(p.y) < cube.y
 			&& int(p.z) >= 0 && int(p.z) < cube.z
@@ -113,8 +116,10 @@ float	rayCastSide(vec3 o, vec3 dir, vec3 p, const int maxDst, ivec3 cube, ivec3 
 		{
 			if (face.x == 1)
 				dstx = pt;
-			if (face.y == 2)
+			if (face.y == 1)
 				dsty = pt;
+			if (face.z == 1)
+				dstz = pt;
 			return (length(vec3(p - o)));
 		}
 		p += dir;
@@ -152,14 +157,13 @@ vec4	getGroundColor(vec3 p)
 	return (col * ((coef + 3.) / 4.) * vec4(0.8, 0.9, 0.9, 1.));
 }
 
-vec4	getColor(vec3 o, vec3 dir, float d, ivec3 face)
+vec4	getColor(vec3 o, ivec3 face)
 {
-	vec3 p = vec3(o + dir * (d));
 	vec4 col;
 
-	if (getPoint(face.x == 1 ? dstx : dsty) == 1)
-		col = getGroundColor(face.x == 1 ? dstx : dsty);
-	else if (getPoint(face.x == 1 ? dstx : dsty) == 2)
+	if (getPoint(o) == 1)
+		col = getGroundColor(o);
+	else if (getPoint(o) == 2)
 		col = vec4 (0., 0.2, 0.9, 1.);
 
     return col;
@@ -192,16 +196,20 @@ void    rayCast(vec3 camPos, vec3 uDir, vec3 rDir, vec3 dir, vec3 upLeft)
 		d = tmp;
 		face = ivec3 (0, 1, 0);
     }
-//    tmp = rayCastSide(o, dir * abs(1. / dir.z), getFirstZ(o, dir), SIZE / 2, cube, ivec3(0, 0, 1));
-//    if (d == 0. || (tmp < d && tmp != 0.))
-//    {
-//        d = tmp;
-//        face = ivec3 (0, 0, 1);
-//    }
+    tmp = rayCastSide(o, dir * abs(1. / dir.z), getFirstZ(o, dir), SIZE / 2, cube, ivec3(0, 0, 1));
+    if (d == 0. || (tmp < d && tmp != 0.))
+    {
+        d = tmp;
+        face = ivec3 (0, 0, 1);
+    }
+
 
     if (d != 0.)
     {
-        gl_FragColor = getColor(o, dir, d, face);
+		if (face.z != 1)
+			gl_FragColor = getColor(face.x == 1 ? dstx : dsty, face);
+		else
+			gl_FragColor = getColor(dstz, face);
     }
     else
         gl_FragColor = vec4(.8, .8, 1., 1.);
@@ -209,15 +217,13 @@ void    rayCast(vec3 camPos, vec3 uDir, vec3 rDir, vec3 dir, vec3 upLeft)
 
 void main(void)
 {
-	vec3 camPos = vec3(200., 100., 100.);
-	vec3 camDir = vec3(SIZE / 2, SIZE / 2, SIZE / 4);
-	float zoom = 0.3;
+	float zoom = 0.1;
 	vec3    uDir = vec3(0., 0., 1.);
-	vec3    dir = normalize(camDir - camPos);
-	vec3    rDir = cross(uDir, dir);
-	uDir = cross(dir, rDir) * zoom;
+	vec3    dir = normalize(CamDir - CamPos);
+	vec3    rDir = normalize(cross(uDir, dir));
+	uDir = normalize(cross(dir, rDir)) * zoom;
 	rDir *= zoom;
-	vec3    upLeft = camPos - uDir * (480. / 2.) - rDir * (640. / 2.);
+	vec3    upLeft = CamPos - uDir * (480. / 2.) - rDir * (640. / 2.);
 
-	rayCast(camPos, uDir, rDir, dir, upLeft);
+	rayCast(CamPos, uDir, rDir, dir, upLeft);
 }

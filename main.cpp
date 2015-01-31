@@ -6,7 +6,7 @@
 //   By: tmielcza <tmielcza@student.42.fr>          +#+  +:+       +#+        //
 //                                                +#+#+#+#+#+   +#+           //
 //   Created: 2015/01/20 16:07:50 by tmielcza          #+#    #+#             //
-//   Updated: 2015/01/31 16:23:37 by caupetit         ###   ########.fr       //
+//   Updated: 2015/01/31 17:36:37 by tmielcza         ###   ########.fr       //
 //                                                                            //
 // ************************************************************************** //
 
@@ -50,8 +50,6 @@ std::list<Map::point>*	getMod1File(std::string name)
 
 	return (pts);
 }
-
-const double g_Pi = 3.14159265358979323846;
 
 int		main(int ac, char **av)
 {
@@ -107,6 +105,7 @@ int		main(int ac, char **av)
 		case SDL_MOUSEMOTION:
 			if (event.motion.state & SDL_BUTTON_LMASK)
 			{
+				dis->setCamRotation(event.motion.x, event.motion.y);
 				std::cout << "BUTTON PRESSED" << std::endl;
 				std::cout << "Mouse motion: " << event.motion.x << " " << event.motion.y << std::endl;
 			}
@@ -121,6 +120,7 @@ int		main(int ac, char **av)
 		{
 			tab[i] = *reinterpret_cast<const int*>(&voxs[i / CUBE_SIZE / CUBE_SIZE][i / CUBE_SIZE % CUBE_SIZE][i % CUBE_SIZE % CUBE_SIZE]);
 		}
+		dis->rotateCam();
 		dis->draw(reinterpret_cast<const void*>(tab), CUBE_SIZE, CUBE_SIZE, CUBE_SIZE / 2);
 
 		frames++;
