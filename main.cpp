@@ -6,7 +6,7 @@
 //   By: tmielcza <tmielcza@student.42.fr>          +#+  +:+       +#+        //
 //                                                +#+#+#+#+#+   +#+           //
 //   Created: 2015/01/20 16:07:50 by tmielcza          #+#    #+#             //
-//   Updated: 2015/01/31 17:36:37 by tmielcza         ###   ########.fr       //
+//   Updated: 2015/02/01 16:05:29 by caupetit         ###   ########.fr       //
 //                                                                            //
 // ************************************************************************** //
 
@@ -96,7 +96,8 @@ int		main(int ac, char **av)
 
 	dis->setHeights(map.heights(), CUBE_SIZE, CUBE_SIZE);
 
-	while (1)
+	int		quit = false;
+	while (!quit)
 	{
 		SDL_Event		event;
 		SDL_PollEvent(&event);
@@ -104,16 +105,32 @@ int		main(int ac, char **av)
 		{
 		case SDL_MOUSEMOTION:
 			if (event.motion.state & SDL_BUTTON_LMASK)
-			{
 				dis->setCamRotation(event.motion.x, event.motion.y);
-				std::cout << "BUTTON PRESSED" << std::endl;
-				std::cout << "Mouse motion: " << event.motion.x << " " << event.motion.y << std::endl;
-			}
 			break;
+		case SDL_MOUSEWHEEL:
+			dis->setZoom(event.motion.x * 0.005);
+			break;
+		case SDL_QUIT:
+            quit = true;
+            break;
+		case SDL_KEYDOWN:
+			switch(event.key.keysym.sym)
+			{
+			case SDLK_KP_PLUS:
+				dis->setZoom(0.005);
+				break;
+			case SDLK_KP_MINUS:
+				dis->setZoom(-0.005);
+				break;
+			case SDLK_ESCAPE:
+				quit = true;
+				break;
+			}
+            break;
 		}
 
 		for (int i = 20; i < 30; i++)
-			map.PutWater(i, 100, 40);
+			map.PutWater(i, 100, 50);
 		map.drainWoxels();
 
 		for (int i = 0; i < CUBE_SIZE * CUBE_SIZE * (CUBE_SIZE / 2); i++)
@@ -132,7 +149,7 @@ int		main(int ac, char **av)
 			begin = clock();
 		}
 	}
-	SDL_Delay(15000);
+//	SDL_Delay(15000);
 
 	return (0);
 }
