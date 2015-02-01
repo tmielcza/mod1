@@ -6,7 +6,7 @@
 //   By: tmielcza <tmielcza@student.42.fr>          +#+  +:+       +#+        //
 //                                                +#+#+#+#+#+   +#+           //
 //   Created: 2015/01/22 15:07:14 by tmielcza          #+#    #+#             //
-//   Updated: 2015/02/01 18:48:57 by tmielcza         ###   ########.fr       //
+//   Updated: 2015/02/01 19:10:38 by tmielcza         ###   ########.fr       //
 //                                                                            //
 // ************************************************************************** //
 
@@ -54,7 +54,7 @@ public:
 		voxel(Voxel_Type type, unsigned char q);
 		voxel(void);
 
-//		voxel&	operator=(const voxel& rhs) {this->type = rhs.type; this->q = rhs.q; this->z = rhs.z; this->u = rhs.u; return (*this);};
+		voxel&	operator=(const voxel& rhs) {this->type = rhs.type; this->q = rhs.q; this->z = rhs.z; this->u = rhs.u; return (*this);};
 
 		unsigned char	type;
 		unsigned char	q;

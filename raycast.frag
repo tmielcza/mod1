@@ -4,6 +4,7 @@ uniform sampler3D MapTex;
 uniform sampler2D HTex;
 uniform vec3 CamPos;
 uniform vec3 CamDir;
+uniform	float Zoom;
 
 vec3    getFirstX(vec3 o, vec3 dir)
 {
@@ -97,9 +98,9 @@ float	rayCastSide(vec3 o, vec3 dir, vec3 p, const int maxDst, ivec3 cube, ivec3 
 		vec3	pt;
 
 		if (face.x == 1)
-			pt = vec3(fract(p.x) > .5 ? ceil(p.x) : floor(p.x), floor(p.y), floor(p.z));
+			pt = vec3(fract(p.x) > .5 ? ceil(p.x) : floor(p.x), floor(p.y), ceil(p.z));
 		else if (face.y == 1)
-			pt = vec3(floor(p.x), fract(p.y) > .5 ? ceil(p.y) : floor(p.y), floor(p.z));
+			pt = vec3(floor(p.x), fract(p.y) > .5 ? ceil(p.y) : floor(p.y), ceil(p.z));
 		else
 		{
 //			pt = vec3(floor(p.x), floor(p.y), ceil(p.z));
@@ -109,9 +110,17 @@ float	rayCastSide(vec3 o, vec3 dir, vec3 p, const int maxDst, ivec3 cube, ivec3 
 //            pt = vec2(floor(p.x), fract(p.y) > .5 ? ceil(p.y) : floor(p.y));
 //            p.z = fract(p.z) > .5 ? ceil(p.z) : floor(p.z);
 		}
-		if (int(p.x) >= 0 && int(p.x) < cube.x
-			&& int(p.y) >= 0 && int(p.y) < cube.y
-			&& int(p.z) >= 0 && int(p.z) < cube.z
+
+//		if (dir.x < 0. && pt.x >= 1.)
+//			pt.x -= 1.;
+//		if (dir.y < 0. && pt.y >= 1.)
+//			pt.y += 1.;
+//		if (dir.x < 0. || dir.y < 0.)
+//			pt.z += 1.;
+
+		if (int(pt.x) >= 0 && int(pt.x) < cube.x
+			&& int(pt.y) >= 0 && int(pt.y) < cube.y
+			&& int(pt.z) >= 0 && int(pt.z) < cube.z
 			&& getPoint(pt) != 0)
 		{
 			if (face.x == 1)
@@ -134,7 +143,6 @@ vec3	getPointVec2(vec2 p)
 
 vec4	getGroundColor(vec3 p)
 {
-//    vec4 sand = vec4(.78, .82, .45, 1.);
 	vec4 flatCol[2];
     flatCol[0] = vec4(.3, .7, .2, 1.);
     flatCol[1] = vec4(1., 1., 1., 1.);
@@ -151,10 +159,14 @@ vec4	getGroundColor(vec3 p)
     slopeCoef *= slopeCoef * 1.2;
     slopeCoef -= 0.2;
 	vec4 col = mix(mix(flatCol[0], flatCol[1], h * h * 1.8), mix(slopeCol[0], slopeCol[1], h * h * 1.2), 1. - slopeCoef);
-	//   vec4 col = mix(vec4(.3, .7, .2, 1.), vec4(.65, .45, .2, 1.), 1. - slopeCoef);
-	col * ((coef + 3.) / 4.) * vec4(0.8, 0.9, 0.9, 1.);
-//    col = mix(col, sand, float(SIZE / 2) / (p.z * p.z));
 	return (col * ((coef + 3.) / 4.) * vec4(0.8, 0.9, 0.9, 1.));
+}
+
+vec4	getWaterColor(vec3 p)
+{
+	float	q = texture3D(MapTex, vec3(p.x / float(SIZE), p.y / float(SIZE), p.z / float(SIZE / 2))).g;
+
+	return (vec4(1. - q, 1. - q, 1., 1.));
 }
 
 vec4	getColor(vec3 o, ivec3 face)
@@ -164,7 +176,7 @@ vec4	getColor(vec3 o, ivec3 face)
 	if (getPoint(o) == 1)
 		col = getGroundColor(o);
 	else if (getPoint(o) == 2)
-		col = vec4 (0., 0.2, 0.9, 1.);
+		col = getWaterColor(o);
 
     return col;
 }
@@ -196,15 +208,12 @@ void    rayCast(vec3 camPos, vec3 uDir, vec3 rDir, vec3 dir, vec3 upLeft)
 		d = tmp;
 		face = ivec3 (0, 1, 0);
     }
-/*
     tmp = rayCastSide(o, dir * abs(1. / dir.z), getFirstZ(o, dir), SIZE / 2, cube, ivec3(0, 0, 1));
     if (d == 0. || (tmp < d && tmp != 0.))
     {
         d = tmp;
         face = ivec3 (0, 0, 1);
     }
-*/
-
 
     if (d != 0.)
     {
@@ -219,12 +228,13 @@ void    rayCast(vec3 camPos, vec3 uDir, vec3 rDir, vec3 dir, vec3 upLeft)
 
 void main(void)
 {
-	float zoom = 0.3;
+//	vec3	camDir = vec3(64., 64., 32.);
+//	vec3	camPos = vec3(63., 100., 40.);
 	vec3    uDir = vec3(0., 0., 1.);
 	vec3    dir = normalize(CamDir - CamPos);
 	vec3    rDir = normalize(cross(uDir, dir));
-	uDir = normalize(cross(dir, rDir)) * zoom;
-	rDir *= zoom;
+	uDir = normalize(cross(dir, rDir)) * Zoom;
+	rDir *= Zoom;
 	vec3    upLeft = CamPos - uDir * (480. / 2.) - rDir * (640. / 2.);
 
 	rayCast(CamPos, uDir, rDir, dir, upLeft);

@@ -6,7 +6,7 @@
 //   By: tmielcza <tmielcza@student.42.fr>          +#+  +:+       +#+        //
 //                                                +#+#+#+#+#+   +#+           //
 //   Created: 2015/01/21 12:44:56 by tmielcza          #+#    #+#             //
-//   Updated: 2015/01/31 20:12:19 by tmielcza         ###   ########.fr       //
+//   Updated: 2015/02/01 18:54:50 by tmielcza         ###   ########.fr       //
 //                                                                            //
 // ************************************************************************** //
 
@@ -96,6 +96,7 @@ Display::Display(void) : _w(640), _h(480)
 		this->_prog = glCreateProgram();
 
 		this->_camDir = Map::point(CUBE_SIZE / 2, CUBE_SIZE / 2, CUBE_SIZE / 4);
+		this->_zoom = 0.3;
 
 	}
 	catch (std::exception& e)
@@ -211,6 +212,9 @@ void		Display::draw(const void* data, const int x, const int y, const int z)
 	GLuint texLoc = glGetUniformLocation(this->_prog, "MapTex");
 	glUniform1i(texLoc, 0);
 
+	GLuint zoomLoc = glGetUniformLocation(this->_prog, "Zoom");
+	glUniform1f(zoomLoc, this->_zoom);
+
 	glBegin(GL_QUADS);
 	glVertex3f(-1.0, -1.0, 0.0);
 	glVertex3f(-1.0, 1.0, 0.0);
@@ -232,6 +236,13 @@ void		Display::setCamRotation(int x, int y)
 }
 
 const double g_Pi = 3.14159265358979323846;
+
+void		Display::setZoom(const float x)
+{
+	float	res = this->_zoom - x;
+	if (res >= 0.1 && res <= 0.8)
+		this->_zoom = res;
+}
 
 void		Display::rotateCam()
 {

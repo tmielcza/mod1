@@ -6,7 +6,7 @@
 //   By: tmielcza <tmielcza@student.42.fr>          +#+  +:+       +#+        //
 //                                                +#+#+#+#+#+   +#+           //
 //   Created: 2015/01/24 15:59:11 by tmielcza          #+#    #+#             //
-//   Updated: 2015/02/01 18:46:45 by tmielcza         ###   ########.fr       //
+//   Updated: 2015/02/01 21:54:22 by tmielcza         ###   ########.fr       //
 //                                                                            //
 // ************************************************************************** //
 
@@ -337,7 +337,7 @@ void				Map::drainWoxels(void)
 		{
 			for (int x = 0; x < CUBE_SIZE; x++)
 			{
-				if (this->_vox[z][y][x].type == voxel::WATER)
+				if (this->_vox[z][y][x].type != voxel::SOIL)
 					drainWoxel(x, y, z);
 			}
 		}
@@ -360,38 +360,74 @@ void				Map::drainWoxels(void)
 
 void				Map::drainWoxel(const unsigned int x, const unsigned int y, const unsigned int z)
 {
-	surroundings	surr = woxelSurroundings(x, y, z);
-
-	voxel&	vox = this->_vox[z][y][x];
 	int		count = 0;
 	int		water = 0;
+	int		fq = 0;
 
-
-	if (!this->isBlock(x, y, z - 1) && this->_vox[z - 1][y][x].q != 255)
+	if (!this->isBlock(x, y, z + 1) && this->_vox[z + 1][y][x].q > 0)
 	{
-		int		q = this->_vox[z - 1][y][x].q;
-		exchangeWater(vox, this->_tmp[x + y * CUBE_SIZE + (z - 1) * CUBE_SIZE * CUBE_SIZE], vox.q + q > 255 ? 255 - q : vox.q);
-		if (vox.q == 0)
-			return ;
+		int		q = this->_vox[z + 1][y][x].q;
+		fq += (fq + q <= 255) ? q : 255 - fq;
+//		exchangeWater(vox, this->_tmp[x + y * CUBE_SIZE + (z - 1) * CUBE_SIZE * CUBE_SIZE], vox.q + q > 255 ? 255 - q : vox.q);
 	}
 
-	for (int i = 0; i < 9; i++)
-	{
-		int x2 = x + i % 3 - 1;
-		int y2 = y + i / 3 - 1;
+	bool	blockCanFill = false;
 
-		if (i != 4 && !this->isBlock(x2, y2, z) && vox.q > this->_vox[z][y2 + y][x2 + x].q)
+	if (!this->isBlock(x, y, z - 1))
+	{
+		voxel&	vox = this->_vox[z - 1][y][x];
+
+//		if (vox.type == voxel::WATER)
+//			blockCanFill = true;
+		if (vox.type == voxel::VOID)
 		{
-			count++;
-			water += this->_vox[z][y2 + y][x2 + x].q;
+			for (int i = 0 ; i < 9 ; i++)
+			{
+				int x2 = x + i % 3 - 1;
+				int y2 = y + i / 3 - 1;
+
+				if (i != 4 && this->isBlock(x2, y2, z - 1))
+					blockCanFill = true;
+			}
+		}
+	}
+	else
+		blockCanFill = true;
+
+	if (fq < 255 && blockCanFill)
+	{
+		for (int i = 0; i < 9; i++)
+		{
+			int x2 = x + i % 3 - 1;
+			int y2 = y + i / 3 - 1;
+
+			if (i != 4 && !this->isBlock(x2, y2, z))
+			{
+				count++;
+				water += this->_vox[z][y2][x2].q;
+			}
+		}
+
+		if (count)
+		{
+			int m = water / count;
+
+			if (m != 0)
+			{
+				fq = (m + fq > 255) ? 255 : fq + m;
+				//fq = 255;
+			}
 		}
 	}
 
-	if (!count)
-		return; 
+	if (fq == 0)
+		return;
 
-	int m = water / count;
+	voxel& vox2 = this->_tmp[x + y * CUBE_SIZE + z * CUBE_SIZE * CUBE_SIZE];
 
+	vox2.type = voxel::WATER;
+	vox2.q = fq;
+/*
 	if (m < vox.q && (vox.q - m) / count != 0)
 	{
 		int gift = (vox.q - m) / count;
@@ -401,13 +437,24 @@ void				Map::drainWoxel(const unsigned int x, const unsigned int y, const unsign
 			int x2 = x + i % 3 - 1;
 			int y2 = y + i / 3 - 1;
 
-			if (i != 4 && !surr.Position(x2, y2, 0) && vox.q > this->_vox[z][y2 + y][x2 + x].q)
+			if (i != 4 && !this->isBlock(x2, y2, z) && vox.q > this->_vox[z][y2 + y][x2 + x].q)
 			{
 				voxel& vox2 = this->_vox[z][y2 + y][x2 + x];
+				std::cout << "vox " << x << "," << y << "," << z << " (" << (int)vox.q << ") puts "
+						  << gift << " in " << x2 << "," << y2 << "," << z << " (" << (int)vox2.q << ")"
+						  << std::endl;
 				exchangeWater(vox, this->_tmp[x2 + y2 * CUBE_SIZE + z * CUBE_SIZE * CUBE_SIZE], gift + vox2.q <= 255 ? gift : 255 - vox2.q);
+				std::cout << "Then vox.q : " << (int)vox.q << " ,vox2(copy).q: " << (int)this->_tmp[x2 + y2 * CUBE_SIZE + z * CUBE_SIZE * CUBE_SIZE].q << std::endl;
 			}
 		}
+		if (vox.q != 0)
+		{
+			voxel& vox3 = this->_tmp[x + y * CUBE_SIZE + z * CUBE_SIZE * CUBE_SIZE];
+			vox3.q += vox.q;
+			vox3.type = voxel::WATER;
+		}
 	}
+*/
 }
 
 bool			Map::isBlock(const int x, const int y, const int z) const
