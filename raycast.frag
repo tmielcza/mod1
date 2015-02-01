@@ -196,12 +196,14 @@ void    rayCast(vec3 camPos, vec3 uDir, vec3 rDir, vec3 dir, vec3 upLeft)
 		d = tmp;
 		face = ivec3 (0, 1, 0);
     }
+/*
     tmp = rayCastSide(o, dir * abs(1. / dir.z), getFirstZ(o, dir), SIZE / 2, cube, ivec3(0, 0, 1));
     if (d == 0. || (tmp < d && tmp != 0.))
     {
         d = tmp;
         face = ivec3 (0, 0, 1);
     }
+*/
 
 
     if (d != 0.)
@@ -217,7 +219,7 @@ void    rayCast(vec3 camPos, vec3 uDir, vec3 rDir, vec3 dir, vec3 upLeft)
 
 void main(void)
 {
-	float zoom = 0.1;
+	float zoom = 0.3;
 	vec3    uDir = vec3(0., 0., 1.);
 	vec3    dir = normalize(CamDir - CamPos);
 	vec3    rDir = normalize(cross(uDir, dir));

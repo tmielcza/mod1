@@ -6,7 +6,7 @@
 //   By: tmielcza <tmielcza@student.42.fr>          +#+  +:+       +#+        //
 //                                                +#+#+#+#+#+   +#+           //
 //   Created: 2015/01/22 15:07:14 by tmielcza          #+#    #+#             //
-//   Updated: 2015/01/31 13:06:58 by tmielcza         ###   ########.fr       //
+//   Updated: 2015/02/01 18:48:57 by tmielcza         ###   ########.fr       //
 //                                                                            //
 // ************************************************************************** //
 
@@ -54,6 +54,8 @@ public:
 		voxel(Voxel_Type type, unsigned char q);
 		voxel(void);
 
+//		voxel&	operator=(const voxel& rhs) {this->type = rhs.type; this->q = rhs.q; this->z = rhs.z; this->u = rhs.u; return (*this);};
+
 		unsigned char	type;
 		unsigned char	q;
 		unsigned char	z;
@@ -78,6 +80,9 @@ public:
 	void	PutWater(int x, int y, int z) {_vox[z][y][x] = voxel(voxel::WATER, 255);} // A VIRER
 
 private:
+
+	bool			isBlock(const int x, const int y, const int z) const;
+
 	struct surroundings
 	{
 		surroundings(void);
@@ -97,6 +102,7 @@ private:
 
 	std::list<point>*			_pts;
 	std::vector< std::vector< std::vector <voxel> > >	_vox;
+	voxel*						_tmp;
 	char*						_hMap;
 
 	Map(const Map& src);

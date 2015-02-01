@@ -6,19 +6,21 @@
 //   By: tmielcza <tmielcza@student.42.fr>          +#+  +:+       +#+        //
 //                                                +#+#+#+#+#+   +#+           //
 //   Created: 2015/01/24 15:59:11 by tmielcza          #+#    #+#             //
-//   Updated: 2015/01/31 13:33:58 by tmielcza         ###   ########.fr       //
+//   Updated: 2015/02/01 18:46:45 by tmielcza         ###   ########.fr       //
 //                                                                            //
 // ************************************************************************** //
 
 #include <cstdlib>
 #include <cmath>
 #include <iostream>
+#include <cstring>
 #include "Map.hpp"
 
 Map::Map(void) : _vox(CUBE_SIZE / 2, std::vector< std::vector <voxel> >(CUBE_SIZE, std::vector<voxel>(CUBE_SIZE)))
 {
 	this->_pts = NULL;
 	this->_hMap = new char[CUBE_SIZE * CUBE_SIZE]();
+	this->_tmp = new voxel[CUBE_SIZE * CUBE_SIZE * (CUBE_SIZE / 2)];
 }
 
 Map::~Map(void)
@@ -316,8 +318,6 @@ void				Map::exchangeWater(voxel& src, voxel& dst, const int q)
 {
 	if (dst.type == voxel::SOIL)
 	{
-//		std::cout << "VIEUX SEXE D'HOMME" << std::endl;
-//		exit(0);
 		return ;
 	}
 	src.q -= q;
@@ -329,6 +329,8 @@ void				Map::exchangeWater(voxel& src, voxel& dst, const int q)
 
 void				Map::drainWoxels(void)
 {
+	std::memset(this->_tmp, 0, sizeof(voxel) * CUBE_SIZE * CUBE_SIZE * (CUBE_SIZE / 2));
+
 	for (int z = 0; z < CUBE_SIZE / 2; z++)
 	{
 		for (int y = 0; y < CUBE_SIZE; y++)
@@ -337,6 +339,20 @@ void				Map::drainWoxels(void)
 			{
 				if (this->_vox[z][y][x].type == voxel::WATER)
 					drainWoxel(x, y, z);
+			}
+		}
+	}
+
+	for (int i = 0; i < CUBE_SIZE / 2; i++)
+	{
+		for (int j = 0; j < CUBE_SIZE; j++)
+		{
+			for (int k = 0; k < CUBE_SIZE; k++)
+			{
+				if (this->_tmp[k + j * CUBE_SIZE + i * CUBE_SIZE * CUBE_SIZE].type == voxel::WATER)
+				{
+					this->_vox[i][j][k] = this->_tmp[k + j * CUBE_SIZE + i * CUBE_SIZE * CUBE_SIZE];
+				}
 			}
 		}
 	}
@@ -350,20 +366,21 @@ void				Map::drainWoxel(const unsigned int x, const unsigned int y, const unsign
 	int		count = 0;
 	int		water = 0;
 
-	if (!surr.Position(0, 0, z - 1) && this->_vox[z - 1][y][x].q != 255)
+
+	if (!this->isBlock(x, y, z - 1) && this->_vox[z - 1][y][x].q != 255)
 	{
 		int		q = this->_vox[z - 1][y][x].q;
-		exchangeWater(vox, this->_vox[z - 1][y][x], vox.q + q > 255 ? 255 - q : vox.q);
+		exchangeWater(vox, this->_tmp[x + y * CUBE_SIZE + (z - 1) * CUBE_SIZE * CUBE_SIZE], vox.q + q > 255 ? 255 - q : vox.q);
 		if (vox.q == 0)
 			return ;
 	}
 
 	for (int i = 0; i < 9; i++)
 	{
-		int x2 = i % 3 - 1;
-		int y2 = i / 3 - 1;
+		int x2 = x + i % 3 - 1;
+		int y2 = y + i / 3 - 1;
 
-		if (i != 4 && !surr.Position(x2, y2, 0) && vox.q > this->_vox[z][y2 + y][x2 + x].q)
+		if (i != 4 && !this->isBlock(x2, y2, z) && vox.q > this->_vox[z][y2 + y][x2 + x].q)
 		{
 			count++;
 			water += this->_vox[z][y2 + y][x2 + x].q;
@@ -381,16 +398,26 @@ void				Map::drainWoxel(const unsigned int x, const unsigned int y, const unsign
 
 		for (int i = 0; i < 9; i++)
 		{
-			int x2 = i % 3 - 1;
-			int y2 = i / 3 - 1;
+			int x2 = x + i % 3 - 1;
+			int y2 = y + i / 3 - 1;
 
 			if (i != 4 && !surr.Position(x2, y2, 0) && vox.q > this->_vox[z][y2 + y][x2 + x].q)
 			{
 				voxel& vox2 = this->_vox[z][y2 + y][x2 + x];
-				exchangeWater(vox, vox2, gift + vox2.q <= 255 ? gift : 255 - vox2.q);
+				exchangeWater(vox, this->_tmp[x2 + y2 * CUBE_SIZE + z * CUBE_SIZE * CUBE_SIZE], gift + vox2.q <= 255 ? gift : 255 - vox2.q);
 			}
 		}
 	}
+}
+
+bool			Map::isBlock(const int x, const int y, const int z) const
+{
+	if (x >= CUBE_SIZE || y >= CUBE_SIZE || z >= CUBE_SIZE / 2)
+		return (true);
+	else if (x < 0 || y < 0 || z < 0)
+		return (true);
+	else
+		return (this->_vox[z][y][x].type == voxel::SOIL);
 }
 
 Map::surroundings	Map::woxelSurroundings(const unsigned int x, const unsigned int y, const unsigned int z) const
