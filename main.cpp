@@ -6,7 +6,7 @@
 //   By: tmielcza <tmielcza@student.42.fr>          +#+  +:+       +#+        //
 //                                                +#+#+#+#+#+   +#+           //
 //   Created: 2015/01/20 16:07:50 by tmielcza          #+#    #+#             //
-//   Updated: 2015/02/01 21:48:03 by tmielcza         ###   ########.fr       //
+//   Updated: 2015/02/02 18:51:08 by tmielcza         ###   ########.fr       //
 //                                                                            //
 // ************************************************************************** //
 
@@ -79,22 +79,16 @@ int		main(int ac, char **av)
 
 	dis->initShaderProgram("raycast.frag");
 
-	glClearColor(1,0,0,1);
-	glClear(GL_COLOR_BUFFER_BIT);
-
-	glViewport(0, 0, dis->getW(), dis->getH());
-	glMatrixMode(GL_PROJECTION);
-	glLoadIdentity();
-	glOrtho(0, 1, 0, 1, 0, 1);
-	glMatrixMode(GL_MODELVIEW);
-	glLoadIdentity();
-
 	int *tab = new int[CUBE_SIZE * CUBE_SIZE * (CUBE_SIZE / 2)];
 	const std::vector< std::vector< std::vector <Map::voxel> > >&	voxs = map.voxels();
 	int frames = 0;
 	std::clock_t begin = clock();
 
 	dis->setHeights(map.heights(), CUBE_SIZE, CUBE_SIZE);
+
+		for (int i = 50; i < 55; i++)
+			map.PutWater(i, 100, 40);
+
 
 	int		quit = false;
 	while (!quit)
@@ -129,9 +123,12 @@ int		main(int ac, char **av)
             break;
 		}
 
-		for (int i = 50; i < 55; i++)
-			map.PutWater(i, 100, 40);
-		map.drainWoxels();
+//		for (int i = 0; i < 10; i++)
+		{
+//			for (int j = 50; j < 55; j++)
+//				for (int k = 95; k < 100; k++)
+//					map.PutWater(j, k, 40);
+			map.drainWoxels();}
 
 		for (int i = 0; i < CUBE_SIZE * CUBE_SIZE * (CUBE_SIZE / 2); i++)
 		{

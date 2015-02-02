@@ -6,7 +6,7 @@
 //   By: tmielcza <tmielcza@student.42.fr>          +#+  +:+       +#+        //
 //                                                +#+#+#+#+#+   +#+           //
 //   Created: 2015/01/21 12:44:56 by tmielcza          #+#    #+#             //
-//   Updated: 2015/02/01 18:54:50 by tmielcza         ###   ########.fr       //
+//   Updated: 2015/02/02 15:03:42 by tmielcza         ###   ########.fr       //
 //                                                                            //
 // ************************************************************************** //
 
@@ -98,6 +98,15 @@ Display::Display(void) : _w(640), _h(480)
 		this->_camDir = Map::point(CUBE_SIZE / 2, CUBE_SIZE / 2, CUBE_SIZE / 4);
 		this->_zoom = 0.3;
 
+		glClearColor(1,0,0,1);
+		glClear(GL_COLOR_BUFFER_BIT);
+
+		glViewport(0, 0, this->getW(), this->getH());
+		glMatrixMode(GL_PROJECTION);
+		glLoadIdentity();
+		glOrtho(0, 1, 0, 1, 0, 1);
+		glMatrixMode(GL_MODELVIEW);
+		glLoadIdentity();
 	}
 	catch (std::exception& e)
 	{
@@ -113,17 +122,6 @@ Display::~Display(void)
 	SDL_Quit();
 }
 
-/*
-void		Display::addPixel(unsigned int x, unsigned int y, Uint32 col)
-{
-	if (x >= this->_w || y >= this->_h)
-	{
-		return ;
-	}
-	this->_pix[x + y * this->_w] = col;
-}
-*/
-
 void		Display::initShaderProgram(const std::string name)
 {
 	std::string data = Utils::getFile(name);
@@ -136,7 +134,9 @@ void		Display::initShaderProgram(const std::string name)
 
 	glGetProgramiv(this->_prog, GL_LINK_STATUS, &isLinked);
 	if (isLinked == false)
-		std::cout << "DANSLKUL !" << std::endl;
+	{
+		throw (std::exception());
+	}
 }
 
 GLuint		Display::compileShader(const std::string data, const GLenum flag) const
@@ -223,10 +223,6 @@ void		Display::draw(const void* data, const int x, const int y, const int z)
 	glEnd();
 
 	SDL_GL_SwapWindow(this->_win);
-//	SDL_UpdateTexture(this->_tex, NULL, this->_pix, this->_w * sizeof(Uint32));
-//	SDL_RenderClear(this->_ren);
-//	SDL_RenderCopy(this->_ren, this->_tex, NULL, NULL);
-//	SDL_RenderPresent(this->_ren);
 }
 
 void		Display::setCamRotation(int x, int y)

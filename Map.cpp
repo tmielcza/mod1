@@ -6,7 +6,7 @@
 //   By: tmielcza <tmielcza@student.42.fr>          +#+  +:+       +#+        //
 //                                                +#+#+#+#+#+   +#+           //
 //   Created: 2015/01/24 15:59:11 by tmielcza          #+#    #+#             //
-//   Updated: 2015/02/01 21:54:22 by tmielcza         ###   ########.fr       //
+//   Updated: 2015/02/02 18:37:26 by tmielcza         ###   ########.fr       //
 //                                                                            //
 // ************************************************************************** //
 
@@ -273,8 +273,29 @@ void	Map::voxelizeMap(void)
 				this->_vox[l][y][x] = voxel(voxel::SOIL, l);
 				this->_hMap[y + x * CUBE_SIZE] = pt.z;
 			}
-		 }
-	 }
+		}
+	}
+
+	for (int l = 0; l < CUBE_SIZE / 2; l++)
+	{
+		for (int y = 0; y < CUBE_SIZE; y++)
+		{
+			for (int x = 0; x < CUBE_SIZE; x++)
+			{
+				voxel& vox = this->_vox[l][y][x];
+				vox.u = 0;
+				vox.u += this->isBlock(x + 1, y, l) ? 0 : 1;
+				vox.u += this->isBlock(x - 1, y, l) ? 0 : 1;
+				vox.u += this->isBlock(x, y + 1, l) ? 0 : 1;
+				vox.u += this->isBlock(x, y - 1, l) ? 0 : 1;
+				vox.u += this->isBlock(x + 1, y + 1, l) ? 0 : 1;
+				vox.u += this->isBlock(x + 1, y - 1, l) ? 0 : 1;
+				vox.u += this->isBlock(x - 1, y + 1, l) ? 0 : 1;
+				vox.u += this->isBlock(x - 1, y - 1, l) ? 0 : 1;
+
+			}
+		}
+	}
 }
 
 const std::vector< std::vector< std::vector <Map::voxel> > >& Map::voxels(void) const
@@ -349,9 +370,11 @@ void				Map::drainWoxels(void)
 		{
 			for (int k = 0; k < CUBE_SIZE; k++)
 			{
-				if (this->_tmp[k + j * CUBE_SIZE + i * CUBE_SIZE * CUBE_SIZE].type == voxel::WATER)
+				if (this->_vox[i][j][k].type == voxel::WATER
+				|| this->_vox[i][j][k].type == voxel::VOID)
 				{
-					this->_vox[i][j][k] = this->_tmp[k + j * CUBE_SIZE + i * CUBE_SIZE * CUBE_SIZE];
+					this->_vox[i][j][k].type = this->_tmp[k + j * CUBE_SIZE + i * CUBE_SIZE * CUBE_SIZE].type;
+					this->_vox[i][j][k].q = this->_tmp[k + j * CUBE_SIZE + i * CUBE_SIZE * CUBE_SIZE].q;
 				}
 			}
 		}
@@ -368,27 +391,33 @@ void				Map::drainWoxel(const unsigned int x, const unsigned int y, const unsign
 	{
 		int		q = this->_vox[z + 1][y][x].q;
 		fq += (fq + q <= 255) ? q : 255 - fq;
-//		exchangeWater(vox, this->_tmp[x + y * CUBE_SIZE + (z - 1) * CUBE_SIZE * CUBE_SIZE], vox.q + q > 255 ? 255 - q : vox.q);
 	}
 
 	bool	blockCanFill = false;
 
 	if (!this->isBlock(x, y, z - 1))
 	{
-		voxel&	vox = this->_vox[z - 1][y][x];
+//		voxel&	vox = this->_vox[z - 1][y][x];
 
 //		if (vox.type == voxel::WATER)
 //			blockCanFill = true;
-		if (vox.type == voxel::VOID)
+		if (1)
 		{
+			int is = 0;
 			for (int i = 0 ; i < 9 ; i++)
 			{
 				int x2 = x + i % 3 - 1;
 				int y2 = y + i / 3 - 1;
 
 				if (i != 4 && this->isBlock(x2, y2, z - 1))
-					blockCanFill = true;
+				{
+					is++;
+				}
+				else if (this->_vox[z - 1][y2][x2].type == voxel::WATER && this->_vox[z - 1][y2][x2].q == 255)
+					is++;
 			}
+			if (is > 3)
+				blockCanFill = true;
 		}
 	}
 	else
@@ -401,16 +430,19 @@ void				Map::drainWoxel(const unsigned int x, const unsigned int y, const unsign
 			int x2 = x + i % 3 - 1;
 			int y2 = y + i / 3 - 1;
 
-			if (i != 4 && !this->isBlock(x2, y2, z))
+			if (i != 4 && !this->isBlock(x2, y2, z) && this->_vox[z][y2][x2].type == voxel::WATER)
 			{
+				voxel vox2 = this->_vox[z][y2][x2];
 				count++;
-				water += this->_vox[z][y2][x2].q;
+				water += vox2.u ? vox2.q / vox2.u: 0;
 			}
 		}
 
+		water += this->_vox[z][y][x].q % this->_vox[z][y][x].u;
+
 		if (count)
 		{
-			int m = water / count;
+			int m = water;// / count;
 
 			if (m != 0)
 			{
@@ -427,34 +459,7 @@ void				Map::drainWoxel(const unsigned int x, const unsigned int y, const unsign
 
 	vox2.type = voxel::WATER;
 	vox2.q = fq;
-/*
-	if (m < vox.q && (vox.q - m) / count != 0)
-	{
-		int gift = (vox.q - m) / count;
-
-		for (int i = 0; i < 9; i++)
-		{
-			int x2 = x + i % 3 - 1;
-			int y2 = y + i / 3 - 1;
-
-			if (i != 4 && !this->isBlock(x2, y2, z) && vox.q > this->_vox[z][y2 + y][x2 + x].q)
-			{
-				voxel& vox2 = this->_vox[z][y2 + y][x2 + x];
-				std::cout << "vox " << x << "," << y << "," << z << " (" << (int)vox.q << ") puts "
-						  << gift << " in " << x2 << "," << y2 << "," << z << " (" << (int)vox2.q << ")"
-						  << std::endl;
-				exchangeWater(vox, this->_tmp[x2 + y2 * CUBE_SIZE + z * CUBE_SIZE * CUBE_SIZE], gift + vox2.q <= 255 ? gift : 255 - vox2.q);
-				std::cout << "Then vox.q : " << (int)vox.q << " ,vox2(copy).q: " << (int)this->_tmp[x2 + y2 * CUBE_SIZE + z * CUBE_SIZE * CUBE_SIZE].q << std::endl;
-			}
-		}
-		if (vox.q != 0)
-		{
-			voxel& vox3 = this->_tmp[x + y * CUBE_SIZE + z * CUBE_SIZE * CUBE_SIZE];
-			vox3.q += vox.q;
-			vox3.type = voxel::WATER;
-		}
-	}
-*/
+//	vox2.u = this->_vox[z][y][x].u;
 }
 
 bool			Map::isBlock(const int x, const int y, const int z) const
