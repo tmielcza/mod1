@@ -6,7 +6,7 @@
 //   By: tmielcza <tmielcza@student.42.fr>          +#+  +:+       +#+        //
 //                                                +#+#+#+#+#+   +#+           //
 //   Created: 2015/01/20 16:07:50 by tmielcza          #+#    #+#             //
-//   Updated: 2015/02/02 18:51:08 by tmielcza         ###   ########.fr       //
+//   Updated: 2015/02/02 20:16:20 by tmielcza         ###   ########.fr       //
 //                                                                            //
 // ************************************************************************** //
 
@@ -125,9 +125,9 @@ int		main(int ac, char **av)
 
 //		for (int i = 0; i < 10; i++)
 		{
-//			for (int j = 50; j < 55; j++)
-//				for (int k = 95; k < 100; k++)
-//					map.PutWater(j, k, 40);
+			for (int j = 50; j < 55; j++)
+				for (int k = 95; k < 100; k++)
+					map.PutWater(j, k, 40);
 			map.drainWoxels();}
 
 		for (int i = 0; i < CUBE_SIZE * CUBE_SIZE * (CUBE_SIZE / 2); i++)

@@ -165,8 +165,10 @@ vec4	getGroundColor(vec3 p)
 vec4	getWaterColor(vec3 p)
 {
 	float	q = texture3D(MapTex, vec3(p.x / float(SIZE), p.y / float(SIZE), p.z / float(SIZE / 2))).g;
+	vec4 full = vec4(0., 0.2, 0.9, 1.);
+	vec4 empty = vec4(0.65, 0.7, 0.9, 1.);
 
-	return (vec4(1. - q, 1. - q, 1., 1.));
+	return (mix(empty, full, q));
 }
 
 vec4	getColor(vec3 o, ivec3 face)

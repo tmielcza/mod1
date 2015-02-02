@@ -6,21 +6,19 @@
 //   By: tmielcza <tmielcza@student.42.fr>          +#+  +:+       +#+        //
 //                                                +#+#+#+#+#+   +#+           //
 //   Created: 2015/01/24 15:59:11 by tmielcza          #+#    #+#             //
-//   Updated: 2015/02/02 18:37:26 by tmielcza         ###   ########.fr       //
+//   Updated: 2015/02/02 20:29:43 by tmielcza         ###   ########.fr       //
 //                                                                            //
 // ************************************************************************** //
 
 #include <cstdlib>
 #include <cmath>
 #include <iostream>
-#include <cstring>
 #include "Map.hpp"
 
 Map::Map(void) : _vox(CUBE_SIZE / 2, std::vector< std::vector <voxel> >(CUBE_SIZE, std::vector<voxel>(CUBE_SIZE)))
 {
 	this->_pts = NULL;
 	this->_hMap = new char[CUBE_SIZE * CUBE_SIZE]();
-	this->_tmp = new voxel[CUBE_SIZE * CUBE_SIZE * (CUBE_SIZE / 2)];
 }
 
 Map::~Map(void)
@@ -273,29 +271,8 @@ void	Map::voxelizeMap(void)
 				this->_vox[l][y][x] = voxel(voxel::SOIL, l);
 				this->_hMap[y + x * CUBE_SIZE] = pt.z;
 			}
-		}
-	}
-
-	for (int l = 0; l < CUBE_SIZE / 2; l++)
-	{
-		for (int y = 0; y < CUBE_SIZE; y++)
-		{
-			for (int x = 0; x < CUBE_SIZE; x++)
-			{
-				voxel& vox = this->_vox[l][y][x];
-				vox.u = 0;
-				vox.u += this->isBlock(x + 1, y, l) ? 0 : 1;
-				vox.u += this->isBlock(x - 1, y, l) ? 0 : 1;
-				vox.u += this->isBlock(x, y + 1, l) ? 0 : 1;
-				vox.u += this->isBlock(x, y - 1, l) ? 0 : 1;
-				vox.u += this->isBlock(x + 1, y + 1, l) ? 0 : 1;
-				vox.u += this->isBlock(x + 1, y - 1, l) ? 0 : 1;
-				vox.u += this->isBlock(x - 1, y + 1, l) ? 0 : 1;
-				vox.u += this->isBlock(x - 1, y - 1, l) ? 0 : 1;
-
-			}
-		}
-	}
+		 }
+	 }
 }
 
 const std::vector< std::vector< std::vector <Map::voxel> > >& Map::voxels(void) const
@@ -350,126 +327,122 @@ void				Map::exchangeWater(voxel& src, voxel& dst, const int q)
 
 void				Map::drainWoxels(void)
 {
-	std::memset(this->_tmp, 0, sizeof(voxel) * CUBE_SIZE * CUBE_SIZE * (CUBE_SIZE / 2));
-
 	for (int z = 0; z < CUBE_SIZE / 2; z++)
 	{
 		for (int y = 0; y < CUBE_SIZE; y++)
 		{
 			for (int x = 0; x < CUBE_SIZE; x++)
 			{
-				if (this->_vox[z][y][x].type != voxel::SOIL)
+				if (this->_vox[z][y][x].type == voxel::WATER)
 					drainWoxel(x, y, z);
-			}
-		}
-	}
-
-	for (int i = 0; i < CUBE_SIZE / 2; i++)
-	{
-		for (int j = 0; j < CUBE_SIZE; j++)
-		{
-			for (int k = 0; k < CUBE_SIZE; k++)
-			{
-				if (this->_vox[i][j][k].type == voxel::WATER
-				|| this->_vox[i][j][k].type == voxel::VOID)
-				{
-					this->_vox[i][j][k].type = this->_tmp[k + j * CUBE_SIZE + i * CUBE_SIZE * CUBE_SIZE].type;
-					this->_vox[i][j][k].q = this->_tmp[k + j * CUBE_SIZE + i * CUBE_SIZE * CUBE_SIZE].q;
-				}
 			}
 		}
 	}
 }
 
-void				Map::drainWoxel(const unsigned int x, const unsigned int y, const unsigned int z)
+void				Map::drainWoxel(const int& x, const int& y, const int& z)
 {
+	static const int max = 9 * 255;
+	voxel&	vox = this->_vox[z][y][x];
 	int		count = 0;
 	int		water = 0;
-	int		fq = 0;
 
-	if (!this->isBlock(x, y, z + 1) && this->_vox[z + 1][y][x].q > 0)
+	if (!this->isObstacle(x, y, z - 1) && this->_vox[z - 1][y][x].q != 255)
 	{
-		int		q = this->_vox[z + 1][y][x].q;
-		fq += (fq + q <= 255) ? q : 255 - fq;
+		voxel&	vox2 = this->_vox[z - 1][y][x];
+		exchangeWater(vox, vox2, vox.q + vox2.q > 255 ? 255 - vox2.q : vox.q);
+		if (vox.q == 0)
+			return ;
 	}
 
-	bool	blockCanFill = false;
-
-	if (!this->isBlock(x, y, z - 1))
+	for (int i = 0; i < 9; i++)
 	{
-//		voxel&	vox = this->_vox[z - 1][y][x];
+		int x2 = x + i % 3 - 1;
+		int y2 = y + i / 3 - 1;
 
-//		if (vox.type == voxel::WATER)
-//			blockCanFill = true;
-		if (1)
+		if (i != 4 && !this->isObstacle(x2, y2, z))
 		{
-			int is = 0;
-			for (int i = 0 ; i < 9 ; i++)
-			{
-				int x2 = x + i % 3 - 1;
-				int y2 = y + i / 3 - 1;
-
-				if (i != 4 && this->isBlock(x2, y2, z - 1))
-				{
-					is++;
-				}
-				else if (this->_vox[z - 1][y2][x2].type == voxel::WATER && this->_vox[z - 1][y2][x2].q == 255)
-					is++;
-			}
-			if (is > 3)
-				blockCanFill = true;
+			count++;
+			water += this->_vox[z][y2][x2].q;
 		}
 	}
-	else
-		blockCanFill = true;
+	water += vox.q;
+	count++;
 
-	if (fq < 255 && blockCanFill)
+	if (!count)
+		return; 
+
+	int m = water / count;
+	int r = water % count;
+
+//	if (m < vox.q && (vox.q - m) / count != 0)
+	if (water == max)
+		return;
+	if (m != 0)
 	{
+//		int gift = (vox.q - m) / count;
+
 		for (int i = 0; i < 9; i++)
 		{
 			int x2 = x + i % 3 - 1;
 			int y2 = y + i / 3 - 1;
 
-			if (i != 4 && !this->isBlock(x2, y2, z) && this->_vox[z][y2][x2].type == voxel::WATER)
+			if (i != 4 && !this->isObstacle(x2, y2, z))
 			{
-				voxel vox2 = this->_vox[z][y2][x2];
-				count++;
-				water += vox2.u ? vox2.q / vox2.u: 0;
+				voxel& vox2 = this->_vox[z][y2][x2];
+				vox2.q = m;
+				if (r > 0)
+					vox2.q += 1;
+				if (m != 0)
+					vox2.type = voxel::WATER;
+				else
+					vox2.type = voxel::VOID;
+//				exchangeWater(vox, vox2, gift + vox2.q <= 255 ? gift : 255 - vox2.q);
+				r--;
 			}
 		}
-
-		water += this->_vox[z][y][x].q % this->_vox[z][y][x].u;
-
-		if (count)
-		{
-			int m = water;// / count;
-
-			if (m != 0)
-			{
-				fq = (m + fq > 255) ? 255 : fq + m;
-				//fq = 255;
-			}
-		}
+		vox.q = m;
 	}
-
-	if (fq == 0)
-		return;
-
-	voxel& vox2 = this->_tmp[x + y * CUBE_SIZE + z * CUBE_SIZE * CUBE_SIZE];
-
-	vox2.type = voxel::WATER;
-	vox2.q = fq;
-//	vox2.u = this->_vox[z][y][x].u;
 }
 
-bool			Map::isBlock(const int x, const int y, const int z) const
+bool				Map::isInMap(const int& x, const int& y, const int& z) const
 {
-	if (x >= CUBE_SIZE || y >= CUBE_SIZE || z >= CUBE_SIZE / 2)
-		return (true);
-	else if (x < 0 || y < 0 || z < 0)
-		return (true);
-	else
-		return (this->_vox[z][y][x].type == voxel::SOIL);
+	return (x >= 0 && y >= 0 && z >= 0 && x < CUBE_SIZE && y < CUBE_SIZE && z < HALF_CUBE_SIZE);
+}
+
+bool				Map::isSoil(const int& x, const int& y, const int& z) const
+{
+	return (this->_vox[z][y][x].type == voxel::SOIL);
+}
+
+bool				Map::isWater(const int& x, const int& y, const int& z) const
+{
+	return (this->_vox[z][y][x].type == voxel::WATER);
+}
+
+bool				Map::isAir(const int& x, const int& y, const int& z) const
+{
+	return (this->_vox[z][y][x].type == voxel::VOID);
+}
+
+bool				Map::isObstacle(const int& x, const int& y, const int& z) const
+{
+	return (!isInMap(x, y, z) || isSoil(x, y, z));
+}
+
+bool				Map::isSoil(const voxel& vox) const
+{
+	return (vox.type == voxel::SOIL);
+}
+
+bool				Map::isWater(const voxel& vox) const
+{
+	return (vox.type == voxel::WATER);
+}
+
+bool				Map::isAir(const voxel& vox) const
+{
+	return (vox.type == voxel::VOID);
 }
 
 Map::surroundings	Map::woxelSurroundings(const unsigned int x, const unsigned int y, const unsigned int z) const
@@ -488,7 +461,7 @@ Map::surroundings	Map::woxelSurroundings(const unsigned int x, const unsigned in
 					continue ;
 				if ((x == 0 && xi < 0) || (y == 0 && yi < 0) || (z == 0 && zi < 0))
 					full = true;
-				else if (x + xi >= CUBE_SIZE || y + yi >= CUBE_SIZE || z + zi >= CUBE_SIZE / 2)
+				else if (x + xi >= CUBE_SIZE || y + yi >= CUBE_SIZE || z + zi >= HALF_CUBE_SIZE)
 					full = true;
 				else
 				{

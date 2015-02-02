@@ -6,14 +6,15 @@
 //   By: tmielcza <tmielcza@student.42.fr>          +#+  +:+       +#+        //
 //                                                +#+#+#+#+#+   +#+           //
 //   Created: 2015/01/22 15:07:14 by tmielcza          #+#    #+#             //
-//   Updated: 2015/02/01 19:10:38 by tmielcza         ###   ########.fr       //
+//   Updated: 2015/02/02 19:35:21 by tmielcza         ###   ########.fr       //
 //                                                                            //
 // ************************************************************************** //
 
 #ifndef MAP_HPP
 # define MAP_HPP
 
-# define CUBE_SIZE 128
+static const int CUBE_SIZE = 128;
+static const int HALF_CUBE_SIZE = 64;
 
 # include <list>
 # include <vector>
@@ -54,8 +55,6 @@ public:
 		voxel(Voxel_Type type, unsigned char q);
 		voxel(void);
 
-		voxel&	operator=(const voxel& rhs) {this->type = rhs.type; this->q = rhs.q; this->z = rhs.z; this->u = rhs.u; return (*this);};
-
 		unsigned char	type;
 		unsigned char	q;
 		unsigned char	z;
@@ -71,7 +70,7 @@ public:
 	const std::vector< std::vector< std::vector <voxel> > >& voxels(void) const;
 	const char*			heights(void) const;
 
-	void	drainWoxel(const unsigned int x, const unsigned int y, const unsigned int z);
+	void	drainWoxel(const int& x, const int& y, const int& z);
 	void	drainWoxels(void);
 //	void	pushWater(const unsigned int x, const unsigned int y, const unsigned int z, const unsigned int q);
 
@@ -80,9 +79,6 @@ public:
 	void	PutWater(int x, int y, int z) {_vox[z][y][x] = voxel(voxel::WATER, 255);} // A VIRER
 
 private:
-
-	bool			isBlock(const int x, const int y, const int z) const;
-
 	struct surroundings
 	{
 		surroundings(void);
@@ -102,7 +98,6 @@ private:
 
 	std::list<point>*			_pts;
 	std::vector< std::vector< std::vector <voxel> > >	_vox;
-	voxel*						_tmp;
 	char*						_hMap;
 
 	Map(const Map& src);
@@ -112,6 +107,16 @@ private:
 	void	exchangeWater(voxel& src, voxel& dst, const int q);
 	point	interPoint(const float x, const float y) const;
 	static float	Weight(float d);
+
+	bool	isInMap(const int& x, const int& y, const int& z) const;
+	bool	isSoil(const int& x, const int& y, const int& z) const;
+	bool	isWater(const int& x, const int& y, const int& z) const;
+	bool	isAir(const int& x, const int& y, const int& z) const;
+	bool	isObstacle(const int& x, const int& y, const int& z) const;
+
+	bool	isSoil(const voxel& vox) const;
+	bool	isWater(const voxel& vox) const;
+	bool	isAir(const voxel& vox) const;
 };
 
 std::ostream& operator<<(std::ostream& o, const Map::point& rhs);
