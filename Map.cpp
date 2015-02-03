@@ -6,7 +6,7 @@
 //   By: tmielcza <tmielcza@student.42.fr>          +#+  +:+       +#+        //
 //                                                +#+#+#+#+#+   +#+           //
 //   Created: 2015/01/24 15:59:11 by tmielcza          #+#    #+#             //
-//   Updated: 2015/02/02 20:29:43 by tmielcza         ###   ########.fr       //
+//   Updated: 2015/02/03 01:25:37 by tmielcza         ###   ########.fr       //
 //                                                                            //
 // ************************************************************************** //
 
@@ -346,6 +346,7 @@ void				Map::drainWoxel(const int& x, const int& y, const int& z)
 	voxel&	vox = this->_vox[z][y][x];
 	int		count = 0;
 	int		water = 0;
+	int		slopecount = 0;
 
 	if (!this->isObstacle(x, y, z - 1) && this->_vox[z - 1][y][x].q != 255)
 	{
@@ -364,6 +365,8 @@ void				Map::drainWoxel(const int& x, const int& y, const int& z)
 		{
 			count++;
 			water += this->_vox[z][y2][x2].q;
+			if (!this->isObstacle(x2, y2, z - 1))
+				slopecount++;
 		}
 	}
 	water += vox.q;
@@ -375,34 +378,54 @@ void				Map::drainWoxel(const int& x, const int& y, const int& z)
 	int m = water / count;
 	int r = water % count;
 
-//	if (m < vox.q && (vox.q - m) / count != 0)
 	if (water == max)
 		return;
-	if (m != 0)
-	{
-//		int gift = (vox.q - m) / count;
 
-		for (int i = 0; i < 9; i++)
+	if (m == 0 && false)
+	{
+		for (int i = 0, j = 0; i < 9; i++)
 		{
 			int x2 = x + i % 3 - 1;
 			int y2 = y + i / 3 - 1;
-
-			if (i != 4 && !this->isObstacle(x2, y2, z))
+			
+			if (i != 4 && !this->isObstacle(x2, y2, z) && !this->isObstacle(x2, y2, z - 1))
 			{
-				voxel& vox2 = this->_vox[z][y2][x2];
-				vox2.q = m;
-				if (r > 0)
-					vox2.q += 1;
-				if (m != 0)
-					vox2.type = voxel::WATER;
-				else
-					vox2.type = voxel::VOID;
-//				exchangeWater(vox, vox2, gift + vox2.q <= 255 ? gift : 255 - vox2.q);
-				r--;
+//				std::cout << j << " " << slopecount << std::endl;
+				if (j == slopecount - 1)
+				{
+					this->_vox[z][y2][x2].q = r;
+					this->_vox[z][y2][x2].type = voxel::WATER;
+					vox.q = 0;
+					vox.type = voxel::VOID;
+					return;
+				}
+				j++;
 			}
 		}
-		vox.q = m;
 	}
+
+	for (int i = 0; i < 9; i++)
+	{
+		int x2 = x + i % 3 - 1;
+		int y2 = y + i / 3 - 1;
+		
+		if (i != 4 && !this->isObstacle(x2, y2, z))
+		{
+			voxel& vox2 = this->_vox[z][y2][x2];
+			vox2.q = m;
+			if (r > 0)
+				vox2.q += 1;
+			if (vox2.q != 0)
+				vox2.type = voxel::WATER;
+			else
+				vox2.type = voxel::VOID;
+			r--;
+		}
+	}
+	if (m == 0)
+		vox.type = voxel::VOID;
+	vox.q = m;
+
 }
 
 bool				Map::isInMap(const int& x, const int& y, const int& z) const

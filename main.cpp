@@ -6,7 +6,7 @@
 //   By: tmielcza <tmielcza@student.42.fr>          +#+  +:+       +#+        //
 //                                                +#+#+#+#+#+   +#+           //
 //   Created: 2015/01/20 16:07:50 by tmielcza          #+#    #+#             //
-//   Updated: 2015/02/02 20:16:20 by tmielcza         ###   ########.fr       //
+//   Updated: 2015/02/03 01:25:10 by tmielcza         ###   ########.fr       //
 //                                                                            //
 // ************************************************************************** //
 
@@ -86,48 +86,50 @@ int		main(int ac, char **av)
 
 	dis->setHeights(map.heights(), CUBE_SIZE, CUBE_SIZE);
 
-		for (int i = 50; i < 55; i++)
-			map.PutWater(i, 100, 40);
+	for (int i = 50; i < 55; i++)
+		map.PutWater(i, 100, 40);
 
 
 	int		quit = false;
 	while (!quit)
 	{
 		SDL_Event		event;
-		SDL_PollEvent(&event);
-		switch(event.type)
+		while (SDL_PollEvent(&event))
 		{
-		case SDL_MOUSEMOTION:
-			if (event.motion.state & SDL_BUTTON_LMASK)
-				dis->setCamRotation(event.motion.x, event.motion.y);
-			break;
-		case SDL_MOUSEWHEEL:
-			dis->setZoom(event.motion.x * 0.005);
-			break;
-		case SDL_QUIT:
-            quit = true;
-            break;
-		case SDL_KEYDOWN:
-			switch(event.key.keysym.sym)
+			switch(event.type)
 			{
-			case SDLK_KP_PLUS:
-				dis->setZoom(0.005);
+			case SDL_MOUSEMOTION:
+				if (event.motion.state & SDL_BUTTON_LMASK)
+					dis->setCamRotation(event.motion.x, event.motion.y);
 				break;
-			case SDLK_KP_MINUS:
-				dis->setZoom(-0.005);
+			case SDL_MOUSEWHEEL:
+				dis->setZoom(event.motion.x * 0.005);
 				break;
-			case SDLK_ESCAPE:
+			case SDL_QUIT:
 				quit = true;
 				break;
+			case SDL_KEYDOWN:
+				switch(event.key.keysym.sym)
+				{
+				case SDLK_KP_PLUS:
+					dis->setZoom(0.005);
+					break;
+				case SDLK_KP_MINUS:
+					dis->setZoom(-0.005);
+					break;
+				case SDLK_ESCAPE:
+					quit = true;
+					break;
+				}
+				break;
 			}
-            break;
 		}
 
 //		for (int i = 0; i < 10; i++)
 		{
-			for (int j = 50; j < 55; j++)
-				for (int k = 95; k < 100; k++)
-					map.PutWater(j, k, 40);
+//			for (int j = 50; j < 55; j++)
+//				for (int k = 95; k < 100; k++)
+//					map.PutWater(j, k, 40);
 			map.drainWoxels();}
 
 		for (int i = 0; i < CUBE_SIZE * CUBE_SIZE * (CUBE_SIZE / 2); i++)
