@@ -6,7 +6,7 @@
 //   By: tmielcza <tmielcza@student.42.fr>          +#+  +:+       +#+        //
 //                                                +#+#+#+#+#+   +#+           //
 //   Created: 2015/01/22 15:07:14 by tmielcza          #+#    #+#             //
-//   Updated: 2015/02/03 01:13:05 by caupetit         ###   ########.fr       //
+//   Updated: 2015/02/03 02:40:14 by tmielcza         ###   ########.fr       //
 //                                                                            //
 // ************************************************************************** //
 
@@ -84,27 +84,14 @@ public:
 	void	PutWater(int x, int y, int z, int q) {_vox[z][y][x] = voxel(voxel::WATER, q);} // A VIRER
 
 private:
-	struct surroundings
-	{
-		surroundings(void);
-
-		static const int	OffsetPos[3][3][3];
-
-		enum FacePosition {ALL, BOTTOM, UP, FRONT, BACK, LEFT, RIGHT};
-
-		bool		Position(int x, int y, int z);
-		void		Position(int x, int y, int z, bool block);
-//		bool		Face(FacePosition face);
-
-		int			data;
-	};
-
-	surroundings	woxelSurroundings(const unsigned int x, const unsigned int y, const unsigned int z) const;
 
 	std::list<point>*	_pts;
 	std::vector< std::vector< std::vector <voxel> > >	_vox;
 	char*				_hMap;
 	int					_waterHeight;
+	std::vector< std::vector <int> >	_streamOrder;
+
+	void	initStreamOrder(void);
 
 	Map(const Map& src);
 

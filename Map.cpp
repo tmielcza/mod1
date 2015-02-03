@@ -6,7 +6,7 @@
 //   By: tmielcza <tmielcza@student.42.fr>          +#+  +:+       +#+        //
 //                                                +#+#+#+#+#+   +#+           //
 //   Created: 2015/01/24 15:59:11 by tmielcza          #+#    #+#             //
-//   Updated: 2015/02/03 01:47:51 by tmielcza         ###   ########.fr       //
+//   Updated: 2015/02/03 02:40:40 by tmielcza         ###   ########.fr       //
 //                                                                            //
 // ************************************************************************** //
 
@@ -15,14 +15,19 @@
 #include <iostream>
 #include <ctime> 
 #include <cstdlib>
+#include <algorithm>
 #include "Map.hpp"
 
-Map::Map(void) : _vox(CUBE_SIZE / 2, std::vector< std::vector <voxel> >(CUBE_SIZE, std::vector<voxel>(CUBE_SIZE)))
+Map::Map(void) : _vox(CUBE_SIZE / 2, std::vector< std::vector <voxel> >(CUBE_SIZE, std::vector<voxel>(CUBE_SIZE))),
+				 _streamOrder(10, std::vector<int>(9))
 {
 	std::srand(std::time(NULL));
 	this->_pts = NULL;
 	this->_hMap = new char[CUBE_SIZE * CUBE_SIZE]();
 	this->_waterHeight = 1;
+	for (unsigned int i = 0; i < this->_streamOrder.size(); i++)
+		for (unsigned int j = 0; j < this->_streamOrder[0].size(); j++)
+			this->_streamOrder[i][j] = j;
 }
 
 Map::~Map(void)
@@ -184,68 +189,6 @@ float	Map::point::getDst(const point& a, const point& b)
 	return (std::sqrt(xi * xi + yi * yi));
 }
 
-const int	Map::surroundings::OffsetPos[3][3][3] = {
-	{{0, 1, 2},
-	 {3, 4, 5},
-	 {6, 7, 8}},
-	{{9, 10, 11},
-	 {12, -1, 13},
-	 {14, 15, 16}},
-	{{17, 18, 19},
-	 {20, 21, 22},
-	 {23, 24, 25}}};
-
-Map::surroundings::surroundings(void) : data(0)
-{
-}
-
-bool	Map::surroundings::Position(int x, int y, int z)
-{
-	return (data & 1 << OffsetPos[z + 1][y + 1][x + 1]);
-}
-
-void	Map::surroundings::Position(int x, int y, int z, bool block)
-{
-	unsigned int	val = 1 << OffsetPos[z + 1][y + 1][x + 1];
-
-	data &= ~val;
-	if (block)
-		data |= val;
-}
-
-/*
-bool	Map::surroundings::Face(FacePosition face)
-{
-	FacePosition faces[6] = {BOTTOM, UP, FRONT, BACK, LEFT, RIGHT}; 
-	int	tab[6][2][3] = {
-		{{1, 1, 0}, {-1, -1, -1}},
-		{{1, 1, 0}, {-1, -1, 1}},
-		{{1, 0, 1}, {-1, -1, -1}},
-		{{1, 0, 1}, {-1, 1, -1}},
-		{{0, 1, 1}, {-1, -1, -1}},
-		{{0, 1, 1}, {1, -1, -1}},
-	};
-
-	int theFace;
-	for (theFace = 0; theFace < 6; theFace++)
-	{
-		if (faces[theFace] == face)
-			break ;
-	}
-
-	int incx = tab[face][0][0];
-	int	incy = tab[face][0][1];
-	int	incz = tab[face][0][2];
-
-	bool	ret = false;
-
-	for (int i = 0, x = tab[face][1][0], y = tab[face][1][1], z = tab[face][1][2]; i < 9; i++)
-	{
-		
-	}
-}
-*/
-
 Map::point	Map::point::cross(const point& a, const point& b)
 {
 	Map::point p(a.x * b.z - a.z * b.y,
@@ -287,6 +230,15 @@ const std::vector< std::vector< std::vector <Map::voxel> > >& Map::voxels(void) 
 const char*			Map::heights(void) const
 {
 	return this->_hMap;
+}
+
+void		Map::initStreamOrder(void)
+{
+	for (unsigned int i = 0; i < this->_streamOrder.size(); i++)
+	{
+		std::vector <int>&	stream = this->_streamOrder[i];
+		std::random_shuffle(stream.begin(), stream.end());
+	}
 }
 
 Map::point	Map::interPoint(const float x, const float y) const
@@ -331,6 +283,7 @@ void				Map::exchangeWater(voxel& src, voxel& dst, const int q)
 
 void				Map::drainWoxels(void)
 {
+	this->initStreamOrder();
 	for (int z = 0; z < CUBE_SIZE / 2; z++)
 	{
 		for (int y = 0; y < CUBE_SIZE; y++)
@@ -380,24 +333,33 @@ void				Map::drainWoxel(const int& x, const int& y, const int& z)
 	int m = water / count;
 	int r = water % count;
 
-/*
-	for (int i = 0, j = 0; i < 9; i++)
+	for (int i = 0; i < 9; i++)
 	{
-		int x2 = x + i % 3 - 1;
-		int y2 = y + i / 3 - 1;
-		
-		if (i != 4 && !this->isObstacle(x2, y2, z) && !this->isObstacle(x2, y2, z - 1))
+		int		pos = this->_streamOrder[0][i];
+		int		x2 = x + pos % 3 - 1;
+		int		y2 = y + pos / 3 - 1;
+
+		if (pos != 4 && !this->isObstacle(x2, y2, z) && !this->isObstacle(x2, y2, z - 1))
 		{
+			voxel& vox2 = this->_vox[z][y2][x2];
+			vox2.q = m;
+			if (r > 0)
+				vox2.q += 1;
+			if (vox2.q != 0)
+				vox2.type = voxel::WATER;
+			else
+				vox2.type = voxel::VOID;
+			r--;
 		}
 	}
-*/
 
 	for (int i = 0; i < 9; i++)
 	{
-		int x2 = x + i % 3 - 1;
-		int y2 = y + i / 3 - 1;
-		
-		if (i != 4 && !this->isObstacle(x2, y2, z))
+		int		pos = this->_streamOrder[0][i];
+		int		x2 = x + pos % 3 - 1;
+		int		y2 = y + pos / 3 - 1;
+
+		if (pos != 4 && !this->isObstacle(x2, y2, z) && this->isObstacle(x2, y2, z - 1))
 		{
 			voxel& vox2 = this->_vox[z][y2][x2];
 			vox2.q = m;
@@ -454,35 +416,6 @@ bool				Map::isWater(const voxel& vox) const
 bool				Map::isAir(const voxel& vox) const
 {
 	return (vox.type == voxel::VOID);
-}
-
-Map::surroundings	Map::woxelSurroundings(const unsigned int x, const unsigned int y, const unsigned int z) const
-{
-	surroundings	ret;
-
-	for (int zi = -1; zi <= 1; zi++)
-	{
-		for (int yi = -1; yi <= 1; yi++)
-		{
-			for (int xi = -1; xi <= 1; xi++)
-			{
-				bool	full = true;
-
-				if (xi == 0 && yi == 0 && zi == 0)
-					continue ;
-				if ((x == 0 && xi < 0) || (y == 0 && yi < 0) || (z == 0 && zi < 0))
-					full = true;
-				else if (x + xi >= CUBE_SIZE || y + yi >= CUBE_SIZE || z + zi >= HALF_CUBE_SIZE)
-					full = true;
-				else
-				{
-					full = _vox[z + zi][y + yi][x + xi].type == voxel::SOIL;
-				}
-				ret.Position(xi, yi, zi, full);
-			}
-		}
-	}
-	return (ret);
 }
 
 void				Map::setWaterHeight(void)
