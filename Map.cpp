@@ -6,7 +6,7 @@
 //   By: tmielcza <tmielcza@student.42.fr>          +#+  +:+       +#+        //
 //                                                +#+#+#+#+#+   +#+           //
 //   Created: 2015/01/24 15:59:11 by tmielcza          #+#    #+#             //
-//   Updated: 2015/02/03 02:40:40 by tmielcza         ###   ########.fr       //
+//   Updated: 2015/02/03 17:14:43 by tmielcza         ###   ########.fr       //
 //                                                                            //
 // ************************************************************************** //
 
@@ -311,6 +311,10 @@ void				Map::drainWoxel(const int& x, const int& y, const int& z)
 			return ;
 	}
 
+	unsigned char minwater = vox.q;
+	unsigned char maxwater = vox.q;
+	bool slope = false;
+
 	for (int i = 0; i < 9; i++)
 	{
 		int x2 = x + i % 3 - 1;
@@ -320,6 +324,10 @@ void				Map::drainWoxel(const int& x, const int& y, const int& z)
 		{
 			count++;
 			water += this->_vox[z][y2][x2].q;
+			minwater = std::min(minwater, this->_vox[z][y2][x2].q);
+			maxwater = std::max(maxwater, this->_vox[z][y2][x2].q);
+			if (this->isInMap(x2, y2, z - 1) && (!this->isSoil(x2, y2, z - 1) && !(this->isWater(x2, y2, z - 1) && this->_vox[z - 1][y2][x2].q == 255)))
+				slope = true;
 		}
 	}
 	water += vox.q;
@@ -328,6 +336,9 @@ void				Map::drainWoxel(const int& x, const int& y, const int& z)
 		return;
 
 	if (!count)
+		return;
+
+	if (!slope && minwater < 2 && maxwater - minwater < 2)
 		return;
 
 	int m = water / count;

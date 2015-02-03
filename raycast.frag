@@ -103,25 +103,15 @@ float	rayCastSide(vec3 o, vec3 dir, vec3 p, const int maxDst, ivec3 cube, ivec3 
 			pt = vec3(floor(p.x), fract(p.y) > .5 ? ceil(p.y) : floor(p.y), ceil(p.z));
 		else
 		{
-//			pt = vec3(floor(p.x), floor(p.y), ceil(p.z));
-//			if (dir.x < 0)
 			pt = vec3(floor(p.x), floor(p.y), fract(p.z) > .5 ? ceil(p.z) : floor(p.z));
-//			pt = vec3(fract(p.x) > .5 ? ceil(p.x) : floor(p.x), fract(p.y) > .5 ? ceil(p.y) : floor(p.y), fract(p.z) > .5 ? floor(p.z) : (p.z));
-//            pt = vec2(floor(p.x), fract(p.y) > .5 ? ceil(p.y) : floor(p.y));
-//            p.z = fract(p.z) > .5 ? ceil(p.z) : floor(p.z);
 		}
-
-//		if (dir.x < 0. && pt.x >= 1.)
-//			pt.x -= 1.;
-//		if (dir.y < 0. && pt.y >= 1.)
-//			pt.y += 1.;
-//		if (dir.x < 0. || dir.y < 0.)
-//			pt.z += 1.;
 
 		if (int(pt.x) >= 0 && int(pt.x) < cube.x
 			&& int(pt.y) >= 0 && int(pt.y) < cube.y
 			&& int(pt.z) >= 0 && int(pt.z) < cube.z
-			&& getPoint(pt) != 0)
+			&& getPoint(pt) != 0
+			&& (getPoint(pt) == 1 || texture3D(MapTex, vec3(pt.x / float(SIZE), pt.y / float(SIZE), pt.z / float(SIZE / 2))).g * 255. > 1.)
+			)
 		{
 			if (face.x == 1)
 				dstx = pt;
