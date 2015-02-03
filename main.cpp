@@ -6,7 +6,7 @@
 //   By: tmielcza <tmielcza@student.42.fr>          +#+  +:+       +#+        //
 //                                                +#+#+#+#+#+   +#+           //
 //   Created: 2015/01/20 16:07:50 by tmielcza          #+#    #+#             //
-//   Updated: 2015/02/03 20:28:22 by tmielcza         ###   ########.fr       //
+//   Updated: 2015/02/03 20:51:59 by tmielcza         ###   ########.fr       //
 //                                                                            //
 // ************************************************************************** //
 
@@ -18,11 +18,9 @@
 #include <list>
 #include <cmath>
 #include <algorithm>
+#include <ctime>
 #include "Display.hpp"
 #include "Map.hpp"
-#include "Raycast.hpp"
-
-#include <ctime>
 
 std::list<Map::point>*	getMod1File(std::string name)
 {

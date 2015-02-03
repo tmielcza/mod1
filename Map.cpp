@@ -6,7 +6,7 @@
 //   By: tmielcza <tmielcza@student.42.fr>          +#+  +:+       +#+        //
 //                                                +#+#+#+#+#+   +#+           //
 //   Created: 2015/01/24 15:59:11 by tmielcza          #+#    #+#             //
-//   Updated: 2015/02/03 20:32:51 by tmielcza         ###   ########.fr       //
+//   Updated: 2015/02/03 21:11:08 by tmielcza         ###   ########.fr       //
 //                                                                            //
 // ************************************************************************** //
 
@@ -16,6 +16,7 @@
 #include <ctime> 
 #include <cstdlib>
 #include <algorithm>
+#include <climits>
 #include "Map.hpp"
 
 Map::Map(void) : _vox(CUBE_SIZE / 2, std::vector< std::vector <voxel> >(CUBE_SIZE, std::vector<voxel>(CUBE_SIZE))),
@@ -43,8 +44,8 @@ void	Map::setPoints(std::list<point>* pts)
 	unsigned int	maxz = 0;
 	unsigned int	maxy = 0;
 	unsigned int	maxx = 0;
-	int				miny = -1;
-	int				minx = -1;
+	int				miny = INT_MAX;
+	int				minx = INT_MAX;
 
 	unsigned int	maxsize, sizex, sizey;
 
@@ -56,18 +57,21 @@ void	Map::setPoints(std::list<point>* pts)
 			maxz = it->z;
 		if (it->y + it->z > maxy)
 			maxy = it->y + it->z;
-		if (miny == -1 || it->y - it->z < miny)
+		if (it->y - it->z < miny)
 			miny = it->y - it->z;
 		if (it->x + it->z > maxx)
 			maxx = it->x + it->z;
-		if (minx == -1 || it->x - it->z < minx)
+		if (it->x - it->z < minx)
 			minx = it->x - it->z;
 	}
 
-	minx = (minx < 0) ? 0 : minx; 
-	miny = (miny < 0) ? 0 : miny; 
+	std::cout << "maxz: " << maxz << std::endl;
+	std::cout << "maxy: " << maxy << std::endl;
+	std::cout << "maxx: " << maxx << std::endl;
+	std::cout << "miny: " << miny << std::endl;
+	std::cout << "minx: " << minx << std::endl;
 
-	maxz = maxz * 2.2;
+	maxz = maxz * 2;
 
 	sizex = maxx - minx;
 	sizey = maxy - miny;
@@ -75,7 +79,7 @@ void	Map::setPoints(std::list<point>* pts)
 	maxsize = std::max(maxz, sizex);
 	maxsize = std::max(maxsize, sizey);
 
-	hRatio = static_cast<float>(maxsize) / CUBE_SIZE;
+	hRatio = static_cast<float>(maxsize) / (CUBE_SIZE - 2);
 
 	for (std::list<point>::iterator it = pts->begin(), end = pts->end(); it != end; ++it)
 	{
