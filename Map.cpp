@@ -6,19 +6,23 @@
 //   By: tmielcza <tmielcza@student.42.fr>          +#+  +:+       +#+        //
 //                                                +#+#+#+#+#+   +#+           //
 //   Created: 2015/01/24 15:59:11 by tmielcza          #+#    #+#             //
-//   Updated: 2015/02/02 20:29:43 by tmielcza         ###   ########.fr       //
+//   Updated: 2015/02/03 01:13:39 by caupetit         ###   ########.fr       //
 //                                                                            //
 // ************************************************************************** //
 
 #include <cstdlib>
 #include <cmath>
 #include <iostream>
+#include <ctime> 
+#include <cstdlib>
 #include "Map.hpp"
 
 Map::Map(void) : _vox(CUBE_SIZE / 2, std::vector< std::vector <voxel> >(CUBE_SIZE, std::vector<voxel>(CUBE_SIZE)))
 {
+	std::srand(std::time(NULL));
 	this->_pts = NULL;
 	this->_hMap = new char[CUBE_SIZE * CUBE_SIZE]();
+	this->_waterHeight = 1;
 }
 
 Map::~Map(void)
@@ -342,7 +346,6 @@ void				Map::drainWoxels(void)
 
 void				Map::drainWoxel(const int& x, const int& y, const int& z)
 {
-	static const int max = 9 * 255;
 	voxel&	vox = this->_vox[z][y][x];
 	int		count = 0;
 	int		water = 0;
@@ -368,16 +371,16 @@ void				Map::drainWoxel(const int& x, const int& y, const int& z)
 	}
 	water += vox.q;
 	count++;
+	if (water == 255 * count)
+		return;
 
 	if (!count)
-		return; 
+		return;
 
 	int m = water / count;
 	int r = water % count;
 
 //	if (m < vox.q && (vox.q - m) / count != 0)
-	if (water == max)
-		return;
 	if (m != 0)
 	{
 //		int gift = (vox.q - m) / count;
@@ -472,4 +475,64 @@ Map::surroundings	Map::woxelSurroundings(const unsigned int x, const unsigned in
 		}
 	}
 	return (ret);
+}
+
+void				Map::setWaterHeight(void)
+{
+	for (int i = 2 ; i < HALF_CUBE_SIZE - 2; i++)
+	{
+		if (this->_vox[i][0][0].type !=	voxel::WATER)
+		{
+			this->_waterHeight = i + 1;
+			break;
+		}
+		if (this->_vox[i][CUBE_SIZE - 1][CUBE_SIZE - 1].type != voxel::WATER)
+		{
+			this->_waterHeight = i + 1;
+			break;
+		}
+	}
+}
+
+void				Map::rain(void)
+{
+	int	z = HALF_CUBE_SIZE - 1;
+
+	for (int i = 0 ; i < 4 ; i++)
+	{
+		int x = rand() % CUBE_SIZE;
+		int	y = rand() % CUBE_SIZE;
+
+		this->PutWater(x, y, z, 200);
+	}
+}
+
+void				Map::plane(void)
+{
+	for (int i = 0 ; i < CUBE_SIZE ; i++)
+	{
+		this->PutWater(i, 0, this->_waterHeight, 50);
+		this->PutWater(i, CUBE_SIZE - 1, this->_waterHeight, 50);
+	}
+	for (int j = 0 ; j < CUBE_SIZE ; j++)
+	{
+		this->PutWater(0, j, this->_waterHeight, 100);
+		this->PutWater(CUBE_SIZE - 1, j, this->_waterHeight, 50);
+	}
+}
+
+void				Map::wave(void)
+{
+	for (int i = 0 ; i < CUBE_SIZE ; i++)
+		this->PutWater(i, 0, this->_waterHeight, 255);
+	this->drainWoxels();
+	for (int i = 0 ; i < CUBE_SIZE ; i++)
+		this->PutWater(i, 0, this->_waterHeight, 255);
+}
+
+void				Map::column(void)
+{
+	for (int j = 50; j < 55; j++)
+		for (int k = 95; k < 100; k++)
+			this->PutWater(j, k, 40, 180);
 }
