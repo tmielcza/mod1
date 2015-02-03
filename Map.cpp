@@ -6,7 +6,7 @@
 //   By: tmielcza <tmielcza@student.42.fr>          +#+  +:+       +#+        //
 //                                                +#+#+#+#+#+   +#+           //
 //   Created: 2015/01/24 15:59:11 by tmielcza          #+#    #+#             //
-//   Updated: 2015/02/03 17:14:43 by tmielcza         ###   ########.fr       //
+//   Updated: 2015/02/03 20:32:51 by tmielcza         ###   ########.fr       //
 //                                                                            //
 // ************************************************************************** //
 
@@ -43,8 +43,8 @@ void	Map::setPoints(std::list<point>* pts)
 	unsigned int	maxz = 0;
 	unsigned int	maxy = 0;
 	unsigned int	maxx = 0;
-	int				miny = 0;
-	int				minx = 0;
+	int				miny = -1;
+	int				minx = -1;
 
 	unsigned int	maxsize, sizex, sizey;
 
@@ -54,16 +54,20 @@ void	Map::setPoints(std::list<point>* pts)
 	{
 		if (it->z > maxz)
 			maxz = it->z;
-		if (it->y > maxy)
+		if (it->y + it->z > maxy)
 			maxy = it->y + it->z;
-		if (miny == 0 || it->y < miny)
+		if (miny == -1 || it->y - it->z < miny)
 			miny = it->y - it->z;
-		if (it->x > maxx)
+		if (it->x + it->z > maxx)
 			maxx = it->x + it->z;
-		if (minx == 0 || it->x < minx)
+		if (minx == -1 || it->x - it->z < minx)
 			minx = it->x - it->z;
 	}
-	maxz = maxz * 2;
+
+	minx = (minx < 0) ? 0 : minx; 
+	miny = (miny < 0) ? 0 : miny; 
+
+	maxz = maxz * 2.2;
 
 	sizex = maxx - minx;
 	sizey = maxy - miny;
@@ -455,7 +459,7 @@ void				Map::rain(void)
 		int x = rand() % CUBE_SIZE;
 		int	y = rand() % CUBE_SIZE;
 
-		this->PutWater(x, y, z, 200);
+		this->PutWater(x, y, z, 50);
 	}
 }
 
@@ -477,14 +481,25 @@ void				Map::wave(void)
 {
 	for (int i = 0 ; i < CUBE_SIZE ; i++)
 		this->PutWater(i, 0, this->_waterHeight, 255);
-	this->drainWoxels();
-	for (int i = 0 ; i < CUBE_SIZE ; i++)
-		this->PutWater(i, 0, this->_waterHeight, 255);
+//	this->drainWoxels();
+//	for (int i = 0 ; i < CUBE_SIZE ; i++)
+//		this->PutWater(i, 0, this->_waterHeight, 255);
 }
 
 void				Map::column(void)
 {
-	for (int j = 50; j < 55; j++)
-		for (int k = 95; k < 100; k++)
-			this->PutWater(j, k, 40, 180);
+	for (int j = 62; j < 67; j++)
+		for (int k = 62; k < 67; k++)
+			this->PutWater(j, k, 63, 180);
+}
+
+void				Map::drain(void)
+{
+	for (int i = 0 ; i < CUBE_SIZE ; i++)
+	{
+		this->PutWater(i, 0, 3, 0);
+		this->PutWater(i, CUBE_SIZE - 1, 3, 0);
+		this->PutWater(0, i, 3, 0);
+		this->PutWater(CUBE_SIZE - 1, i, 3, 0);
+	}
 }

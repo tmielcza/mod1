@@ -6,7 +6,7 @@
 //   By: tmielcza <tmielcza@student.42.fr>          +#+  +:+       +#+        //
 //                                                +#+#+#+#+#+   +#+           //
 //   Created: 2015/01/22 15:07:14 by tmielcza          #+#    #+#             //
-//   Updated: 2015/02/03 02:40:14 by tmielcza         ###   ########.fr       //
+//   Updated: 2015/02/03 20:27:45 by tmielcza         ###   ########.fr       //
 //                                                                            //
 // ************************************************************************** //
 
@@ -80,6 +80,7 @@ public:
 	void	plane(void);
 	void	wave(void);
 	void	column(void);
+	void	drain(void);
 	void	setWaterHeight(void);
 	void	PutWater(int x, int y, int z, int q) {_vox[z][y][x] = voxel(voxel::WATER, q);} // A VIRER
 

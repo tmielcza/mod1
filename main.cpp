@@ -6,7 +6,7 @@
 //   By: tmielcza <tmielcza@student.42.fr>          +#+  +:+       +#+        //
 //                                                +#+#+#+#+#+   +#+           //
 //   Created: 2015/01/20 16:07:50 by tmielcza          #+#    #+#             //
-//   Updated: 2015/02/03 01:29:46 by tmielcza         ###   ########.fr       //
+//   Updated: 2015/02/03 20:28:22 by tmielcza         ###   ########.fr       //
 //                                                                            //
 // ************************************************************************** //
 
@@ -87,7 +87,7 @@ int		main(int ac, char **av)
 	dis->setHeights(map.heights(), CUBE_SIZE, CUBE_SIZE);
 
 	typedef void (Map::* waterModes)(void);
-	waterModes wtm[4] = {&Map::rain, &Map::plane, &Map::wave, &Map::column};
+	waterModes wtm[5] = {&Map::rain, &Map::plane, &Map::wave, &Map::column, &Map::drain};
 
 	int		waterMode = -1;
 	int		quit = false;
@@ -131,6 +131,9 @@ int		main(int ac, char **av)
 					break;
 				case SDLK_4:
 					waterMode = 3;
+					break;
+				case SDLK_5:
+					waterMode = 4;
 					break;
 				case SDLK_SPACE:
 					waterMode = -1;
