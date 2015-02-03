@@ -6,19 +6,23 @@
 //   By: tmielcza <tmielcza@student.42.fr>          +#+  +:+       +#+        //
 //                                                +#+#+#+#+#+   +#+           //
 //   Created: 2015/01/24 15:59:11 by tmielcza          #+#    #+#             //
-//   Updated: 2015/02/03 01:25:37 by tmielcza         ###   ########.fr       //
+//   Updated: 2015/02/03 01:47:51 by tmielcza         ###   ########.fr       //
 //                                                                            //
 // ************************************************************************** //
 
 #include <cstdlib>
 #include <cmath>
 #include <iostream>
+#include <ctime> 
+#include <cstdlib>
 #include "Map.hpp"
 
 Map::Map(void) : _vox(CUBE_SIZE / 2, std::vector< std::vector <voxel> >(CUBE_SIZE, std::vector<voxel>(CUBE_SIZE)))
 {
+	std::srand(std::time(NULL));
 	this->_pts = NULL;
 	this->_hMap = new char[CUBE_SIZE * CUBE_SIZE]();
+	this->_waterHeight = 1;
 }
 
 Map::~Map(void)
@@ -342,11 +346,9 @@ void				Map::drainWoxels(void)
 
 void				Map::drainWoxel(const int& x, const int& y, const int& z)
 {
-	static const int max = 9 * 255;
 	voxel&	vox = this->_vox[z][y][x];
 	int		count = 0;
 	int		water = 0;
-	int		slopecount = 0;
 
 	if (!this->isObstacle(x, y, z - 1) && this->_vox[z - 1][y][x].q != 255)
 	{
@@ -365,44 +367,30 @@ void				Map::drainWoxel(const int& x, const int& y, const int& z)
 		{
 			count++;
 			water += this->_vox[z][y2][x2].q;
-			if (!this->isObstacle(x2, y2, z - 1))
-				slopecount++;
 		}
 	}
 	water += vox.q;
 	count++;
+	if (water == 255 * count)
+		return;
 
 	if (!count)
-		return; 
+		return;
 
 	int m = water / count;
 	int r = water % count;
 
-	if (water == max)
-		return;
-
-	if (m == 0 && false)
+/*
+	for (int i = 0, j = 0; i < 9; i++)
 	{
-		for (int i = 0, j = 0; i < 9; i++)
+		int x2 = x + i % 3 - 1;
+		int y2 = y + i / 3 - 1;
+		
+		if (i != 4 && !this->isObstacle(x2, y2, z) && !this->isObstacle(x2, y2, z - 1))
 		{
-			int x2 = x + i % 3 - 1;
-			int y2 = y + i / 3 - 1;
-			
-			if (i != 4 && !this->isObstacle(x2, y2, z) && !this->isObstacle(x2, y2, z - 1))
-			{
-//				std::cout << j << " " << slopecount << std::endl;
-				if (j == slopecount - 1)
-				{
-					this->_vox[z][y2][x2].q = r;
-					this->_vox[z][y2][x2].type = voxel::WATER;
-					vox.q = 0;
-					vox.type = voxel::VOID;
-					return;
-				}
-				j++;
-			}
 		}
 	}
+*/
 
 	for (int i = 0; i < 9; i++)
 	{
@@ -495,4 +483,64 @@ Map::surroundings	Map::woxelSurroundings(const unsigned int x, const unsigned in
 		}
 	}
 	return (ret);
+}
+
+void				Map::setWaterHeight(void)
+{
+	for (int i = 2 ; i < HALF_CUBE_SIZE - 2; i++)
+	{
+		if (this->_vox[i][0][0].type !=	voxel::WATER)
+		{
+			this->_waterHeight = i + 1;
+			break;
+		}
+		if (this->_vox[i][CUBE_SIZE - 1][CUBE_SIZE - 1].type != voxel::WATER)
+		{
+			this->_waterHeight = i + 1;
+			break;
+		}
+	}
+}
+
+void				Map::rain(void)
+{
+	int	z = HALF_CUBE_SIZE - 1;
+
+	for (int i = 0 ; i < 4 ; i++)
+	{
+		int x = rand() % CUBE_SIZE;
+		int	y = rand() % CUBE_SIZE;
+
+		this->PutWater(x, y, z, 200);
+	}
+}
+
+void				Map::plane(void)
+{
+	for (int i = 0 ; i < CUBE_SIZE ; i++)
+	{
+		this->PutWater(i, 0, this->_waterHeight, 50);
+		this->PutWater(i, CUBE_SIZE - 1, this->_waterHeight, 50);
+	}
+	for (int j = 0 ; j < CUBE_SIZE ; j++)
+	{
+		this->PutWater(0, j, this->_waterHeight, 100);
+		this->PutWater(CUBE_SIZE - 1, j, this->_waterHeight, 50);
+	}
+}
+
+void				Map::wave(void)
+{
+	for (int i = 0 ; i < CUBE_SIZE ; i++)
+		this->PutWater(i, 0, this->_waterHeight, 255);
+	this->drainWoxels();
+	for (int i = 0 ; i < CUBE_SIZE ; i++)
+		this->PutWater(i, 0, this->_waterHeight, 255);
+}
+
+void				Map::column(void)
+{
+	for (int j = 50; j < 55; j++)
+		for (int k = 95; k < 100; k++)
+			this->PutWater(j, k, 40, 180);
 }

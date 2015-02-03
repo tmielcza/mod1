@@ -6,7 +6,7 @@
 //   By: tmielcza <tmielcza@student.42.fr>          +#+  +:+       +#+        //
 //                                                +#+#+#+#+#+   +#+           //
 //   Created: 2015/01/20 16:07:50 by tmielcza          #+#    #+#             //
-//   Updated: 2015/02/03 01:25:10 by tmielcza         ###   ########.fr       //
+//   Updated: 2015/02/03 01:29:46 by tmielcza         ###   ########.fr       //
 //                                                                            //
 // ************************************************************************** //
 
@@ -86,10 +86,10 @@ int		main(int ac, char **av)
 
 	dis->setHeights(map.heights(), CUBE_SIZE, CUBE_SIZE);
 
-	for (int i = 50; i < 55; i++)
-		map.PutWater(i, 100, 40);
+	typedef void (Map::* waterModes)(void);
+	waterModes wtm[4] = {&Map::rain, &Map::plane, &Map::wave, &Map::column};
 
-
+	int		waterMode = -1;
 	int		quit = false;
 	while (!quit)
 	{
@@ -120,17 +120,30 @@ int		main(int ac, char **av)
 				case SDLK_ESCAPE:
 					quit = true;
 					break;
+				case SDLK_1:
+					waterMode = 0;
+					break;
+				case SDLK_2:
+					waterMode = 1;
+					break;
+				case SDLK_3:
+					waterMode = 2;
+					break;
+				case SDLK_4:
+					waterMode = 3;
+					break;
+				case SDLK_SPACE:
+					waterMode = -1;
+					break;
 				}
 				break;
 			}
 		}
-
-//		for (int i = 0; i < 10; i++)
-		{
-//			for (int j = 50; j < 55; j++)
-//				for (int k = 95; k < 100; k++)
-//					map.PutWater(j, k, 40);
-			map.drainWoxels();}
+		
+		map.setWaterHeight();
+		if (waterMode >= 0)
+			(map.*wtm[waterMode])();
+		map.drainWoxels();
 
 		for (int i = 0; i < CUBE_SIZE * CUBE_SIZE * (CUBE_SIZE / 2); i++)
 		{

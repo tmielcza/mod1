@@ -6,7 +6,7 @@
 //   By: tmielcza <tmielcza@student.42.fr>          +#+  +:+       +#+        //
 //                                                +#+#+#+#+#+   +#+           //
 //   Created: 2015/01/22 15:07:14 by tmielcza          #+#    #+#             //
-//   Updated: 2015/02/02 19:35:21 by tmielcza         ###   ########.fr       //
+//   Updated: 2015/02/03 01:13:05 by caupetit         ###   ########.fr       //
 //                                                                            //
 // ************************************************************************** //
 
@@ -76,7 +76,12 @@ public:
 
 	const std::list<point>&	Points(void);
 
-	void	PutWater(int x, int y, int z) {_vox[z][y][x] = voxel(voxel::WATER, 255);} // A VIRER
+	void	rain(void);
+	void	plane(void);
+	void	wave(void);
+	void	column(void);
+	void	setWaterHeight(void);
+	void	PutWater(int x, int y, int z, int q) {_vox[z][y][x] = voxel(voxel::WATER, q);} // A VIRER
 
 private:
 	struct surroundings
@@ -96,9 +101,10 @@ private:
 
 	surroundings	woxelSurroundings(const unsigned int x, const unsigned int y, const unsigned int z) const;
 
-	std::list<point>*			_pts;
+	std::list<point>*	_pts;
 	std::vector< std::vector< std::vector <voxel> > >	_vox;
-	char*						_hMap;
+	char*				_hMap;
+	int					_waterHeight;
 
 	Map(const Map& src);
 
