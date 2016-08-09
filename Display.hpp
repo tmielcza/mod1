@@ -6,14 +6,14 @@
 //   By: tmielcza <tmielcza@student.42.fr>          +#+  +:+       +#+        //
 //                                                +#+#+#+#+#+   +#+           //
 //   Created: 2015/01/21 12:37:22 by tmielcza          #+#    #+#             //
-//   Updated: 2015/02/01 13:28:01 by caupetit         ###   ########.fr       //
+//   Updated: 2016/08/09 20:49:56 by tmielcza         ###   ########.fr       //
 //                                                                            //
 // ************************************************************************** //
 
 #ifndef DISPLAY_HPP
 # define DISPLAY_HPP
 
-# include <SDL.h>
+# include <SDL2/SDL.h>
 # include <OpenGL/gl.h>
 # include "Map.hpp"
 

@@ -6,11 +6,11 @@
 //   By: tmielcza <tmielcza@student.42.fr>          +#+  +:+       +#+        //
 //                                                +#+#+#+#+#+   +#+           //
 //   Created: 2015/01/20 16:07:50 by tmielcza          #+#    #+#             //
-//   Updated: 2015/02/03 20:51:59 by tmielcza         ###   ########.fr       //
+//   Updated: 2016/08/09 20:50:10 by tmielcza         ###   ########.fr       //
 //                                                                            //
 // ************************************************************************** //
 
-#include <SDL.h>
+#include <SDL2/SDL.h>
 #include <OpenGL/gl.h>
 #include <iostream>
 #include <fstream>
