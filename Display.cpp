@@ -6,14 +6,14 @@
 //   By: tmielcza <tmielcza@student.42.fr>          +#+  +:+       +#+        //
 //                                                +#+#+#+#+#+   +#+           //
 //   Created: 2015/01/21 12:44:56 by tmielcza          #+#    #+#             //
-//   Updated: 2016/08/09 20:21:25 by tmielcza         ###   ########.fr       //
+//   Updated: 2016/08/10 18:08:23 by tmielcza         ###   ########.fr       //
 //                                                                            //
 // ************************************************************************** //
 
-#include <SDL2/SDL.h>
 #include <iostream>
-#include "Display.hpp"
 #include <OpenGL/gl.h>
+
+#include "Display.hpp"
 #include "Utils.hpp"
 #include "Map.hpp"
 
@@ -98,6 +98,9 @@ Display::Display(void) : _w(640), _h(480)
 		this->_camDir = Map::point(CUBE_SIZE / 2, CUBE_SIZE / 2, CUBE_SIZE / 4);
 		this->_zoom = 0.3;
 
+		this->setCamRotation(45.0, 60.0);
+		this->rotateCam();
+
 		glClearColor(1,0,0,1);
 		glClear(GL_COLOR_BUFFER_BIT);
 
@@ -117,7 +120,7 @@ Display::Display(void) : _w(640), _h(480)
 
 Display::~Display(void)
 {
-	SDL_DestroyWindow(this->_win);	
+	SDL_DestroyWindow(this->_win);
 	SDL_GL_DeleteContext(this->_glc);
 	SDL_Quit();
 }
