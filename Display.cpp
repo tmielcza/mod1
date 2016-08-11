@@ -239,7 +239,7 @@ const double g_Pi = 3.14159265358979323846;
 void		Display::setZoom(const float x)
 {
 	float	res = this->_zoom - x;
-	if (res >= 0.1 && res <= 0.8)
+	if (res >= 0.03 && res <= 1.0)
 		this->_zoom = res;
 }
 

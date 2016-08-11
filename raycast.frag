@@ -21,7 +21,6 @@ vec3    getFirstX(vec3 o, vec3 dir)
     }
     else
         pt = o;
-//    pt.x = fract(pt.x) > .5 ? ceil(pt.x) : floor(pt.x);
     return pt;
 }
 
@@ -88,6 +87,10 @@ vec3 dstx;
 vec3 dsty;
 vec3 dstz;
 
+float   round(float f) {
+    return (fract(f) > .5 ? ceil(f) : floor(f));
+}
+
 float	rayCastSide(vec3 o, vec3 dir, vec3 p, const int maxDst, ivec3 cube, ivec3 face)
 {
 	vec3	hit;
@@ -98,13 +101,11 @@ float	rayCastSide(vec3 o, vec3 dir, vec3 p, const int maxDst, ivec3 cube, ivec3 
 		vec3	pt;
 
 		if (face.x == 1)
-			pt = vec3(fract(p.x) > .5 ? ceil(p.x) : floor(p.x), floor(p.y), ceil(p.z));
+			pt = vec3(round(p.x), floor(p.y), ceil(p.z));
 		else if (face.y == 1)
-			pt = vec3(floor(p.x), fract(p.y) > .5 ? ceil(p.y) : floor(p.y), ceil(p.z));
+			pt = vec3(floor(p.x), round(p.y), ceil(p.z));
 		else
-		{
-			pt = vec3(floor(p.x), floor(p.y), fract(p.z) > .5 ? ceil(p.z) : floor(p.z));
-		}
+			pt = vec3(floor(p.x), floor(p.y), round(p.z));
 
 		if (int(pt.x) >= 0 && int(pt.x) < cube.x
 			&& int(pt.y) >= 0 && int(pt.y) < cube.y

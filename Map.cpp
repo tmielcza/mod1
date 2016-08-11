@@ -224,7 +224,7 @@ void	Map::voxelizeMap(void)
 			for (int l = 0; l < pt.z; l++)
 			{
 				this->_vox[l][y][x] = voxel(voxel::SOIL, l);
-				this->_hMap[y + x * CUBE_SIZE] = pt.z;
+				this->_hMap[x + y * CUBE_SIZE] = pt.z;
 			}
 		 }
 	 }
